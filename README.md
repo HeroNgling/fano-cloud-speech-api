@@ -77,6 +77,15 @@ For actual testing with authentication, use:
 - **Postman** (GUI): WebSocket request with custom headers
 - **Python/Node.js**: Code examples in the documentation
 
+## ⚠️ Browser WebSocket Limitation
+
+**Note**: Browser WebSocket API cannot send custom headers during the handshake. This is a browser limitation, not Mintlify's.
+
+For actual testing with authentication, use:
+- **wscat** (CLI): `wscat -c "wss://..." -H "Fano-license-key: YOUR_KEY"`
+- **Postman** (GUI): WebSocket request with custom headers
+- **Python/Node.js**: Code examples in the documentation
+
 ## 📁 File Structure
 
 ```
@@ -86,6 +95,9 @@ fano-mintlify-docs/
 =======
 ├── mint.json                                    # Main configuration
 ├── mint.pages.json                              # Alternative config
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 ├── docs/
 │   ├── introduction.mdx                         # Overview/home page
@@ -104,6 +116,7 @@ fano-mintlify-docs/
 │   ├── authentication.mdx                      # Authentication guide
 │   ├── async-stt/
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 │   │   ├── submit-transcription.mdx            # POST endpoint (interactive)
 │   │   └── get-transcription-status.mdx        # GET endpoint (interactive)
 │   └── streaming-stt/
@@ -112,6 +125,12 @@ fano-mintlify-docs/
 │       ├── send-audio-chunk.mdx                # Send audio data
 │       ├── receive-results.mdx                 # Receive transcription results
 │       └── send-eof.mdx                        # End the session
+=======
+│   │   ├── submit-transcription.mdx            # POST endpoint
+│   │   └── get-transcription-status.mdx        # GET endpoint
+│   └── streaming-stt/
+│       └── streaming-transcription.mdx         # WebSocket API
+>>>>>>> Stashed changes
 =======
 │   │   ├── submit-transcription.mdx            # POST endpoint
 │   │   └── get-transcription-status.mdx        # GET endpoint

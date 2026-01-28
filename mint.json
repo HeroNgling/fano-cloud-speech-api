@@ -97,6 +97,7 @@
     {
       "group": "Streaming STT",
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       "pages": [
         "api-reference/streaming-stt/overview",
         "api-reference/streaming-stt/configure-stream",
@@ -104,6 +105,9 @@
         "api-reference/streaming-stt/receive-results",
         "api-reference/streaming-stt/send-eof"
       ]
+=======
+      "asyncapi": "/api-reference/asyncapi-streaming-transcription.yaml"
+>>>>>>> Stashed changes
 =======
       "asyncapi": "/api-reference/asyncapi-streaming-transcription.yaml"
 >>>>>>> Stashed changes
