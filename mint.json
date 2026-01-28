@@ -25,65 +25,44 @@
     "name": "Dashboard",
     "url": "https://studio.fano.ai"
   },
-  "tabs": [
-    {
-      "name": "Documentation",
-      "url": "/"
-    },
-    {
-      "name": "API Reference",
-      "url": "api-reference"
-    },
-    {
-      "name": "Release Notes",
-      "url": "release-notes"
-    }
-  ],
-  "anchors": [
-    {
-      "name": "API Reference",
-      "icon": "rectangle-terminal",
-      "url": "api-reference"
-    },
-    {
-      "name": "Release Notes",
-      "icon": "lightbulb",
-      "url": "release-notes"
-    }
-  ],
   "navigation": [
     {
-      "group": "Overview",
-      "pages": ["introduction"]
-    },
-    {
-      "group": "Get Started",
+      "group": "Documentation",
       "pages": [
-        "get-started/transcribe-pre-recorded-audio",
-        "get-started/transcribe-streaming-audio"
+        "introduction",
+        {
+          "group": "Get Started",
+          "pages": [
+            "get-started/transcribe-pre-recorded-audio",
+            "get-started/transcribe-streaming-audio"
+          ]
+        },
+        {
+          "group": "Features",
+          "pages": [
+            "features/keyword-biasing",
+            "features/punctuation"
+          ]
+        },
+        {
+          "group": "Model and Language",
+          "pages": [
+            "model-and-language/supported-languages"
+          ]
+        }
       ]
-    },
-    {
-      "group": "Features",
-      "pages": [
-        "features/keyword-biasing",
-        "features/punctuation"
-      ]
-    },
-    {
-      "group": "Model & Language",
-      "pages": ["model-and-language/supported-languages"]
     },
     {
       "group": "API Reference",
       "pages": [
-        "api-reference/introduction",
         "api-reference/async-stt"
       ]
     },
     {
-      "group": "Release Notes",
-      "pages": ["release-notes/changelog"]
+      "group": "Release Note",
+      "pages": [
+        "release-notes/changelog"
+      ]
     }
   ],
   "footerSocials": {
