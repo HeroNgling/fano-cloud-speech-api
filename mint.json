@@ -22,7 +22,7 @@
     }
   ],
   "topbarCtaButton": {
-    "name": "Dashboard",
+    "name": "Get Started",
     "url": "https://studio.fano.ai"
   },
   "tabs": [
@@ -95,7 +95,9 @@
     },
     {
       "group": "Streaming STT",
-      "asyncapi": "/api-reference/asyncapi-streaming-transcription.yaml"
+      "pages": [
+        "api-reference/streaming-stt/streaming-transcription"
+      ]
     },
     {
       "group": "Release Note",
