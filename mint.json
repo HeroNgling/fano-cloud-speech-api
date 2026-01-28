@@ -2,10 +2,10 @@
   "$schema": "https://mintlify.com/schema.json",
   "name": "Fano Speech API",
   "logo": {
-    "dark": "/logo/dark.svg",
+    "dark": "/logo/light.svg",
     "light": "/logo/light.svg"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/logo/light.svg",
   "colors": {
     "primary": "#012AFF",
     "anchors": {
