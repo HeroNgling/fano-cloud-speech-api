@@ -1,0 +1,112 @@
+---
+title: "Send Audio Chunk"
+openapi: "POST /streaming-transcript/audio"
+description: "Stream audio data for transcription"
+---
+
+<Tip>
+**Recommended chunk size:** 100ms - 500ms of audio data for optimal latency and accuracy.
+</Tip>
+
+## Message Format
+
+Send audio data as Base64-encoded content wrapped in a JSON object:
+
+```json
+{
+  "audioContent": "UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9..."
+}
+```
+
+## Audio Requirements
+
+<Warning>
+The audio format must match your configuration settings, or transcription will fail.
+</Warning>
+
+| Requirement | Specification |
+|-------------|---------------|
+| **Encoding** | Must match `config.encoding` (LINEAR16 or MULAW) |
+| **Channels** | Single channel (mono) only |
+| **Sample Rate** | Must match `config.sampleRateHertz` |
+| **Format** | Base64-encoded raw audio bytes |
+
+## Chunking Guidelines
+
+| Chunk Size | Latency | Accuracy | Recommended For |
+|------------|---------|----------|-----------------|
+| 100ms | Very Low | Good | Real-time captioning |
+| 250ms | Low | Better | Voice assistants |
+| 500ms | Medium | Best | Meeting transcription |
+
+## Code Examples
+
+<Tabs>
+  <Tab title="Python">
+```python
+import base64
+
+# Read audio file and send in chunks
+with open("audio.raw", "rb") as f:
+    while chunk := f.read(3200):  # 100ms at 16kHz, 16-bit
+        audio_msg = {
+            "audioContent": base64.b64encode(chunk).decode()
+        }
+        await ws.send(json.dumps(audio_msg))
+        await asyncio.sleep(0.1)  # Pace the sending
+```
+  </Tab>
+  <Tab title="JavaScript">
+```javascript
+// Convert audio buffer to Base64 and send
+function sendAudioChunk(audioBuffer) {
+  const base64Audio = Buffer.from(audioBuffer).toString('base64');
+  ws.send(JSON.stringify({ audioContent: base64Audio }));
+}
+
+// Example: Send from microphone stream
+microphone.on('data', (chunk) => {
+  sendAudioChunk(chunk);
+});
+```
+  </Tab>
+  <Tab title="Browser JavaScript">
+```javascript
+// Using Web Audio API
+const audioContext = new AudioContext({ sampleRate: 16000 });
+
+navigator.mediaDevices.getUserMedia({ audio: true })
+  .then(stream => {
+    const source = audioContext.createMediaStreamSource(stream);
+    const processor = audioContext.createScriptProcessor(4096, 1, 1);
+    
+    processor.onaudioprocess = (e) => {
+      const float32Data = e.inputBuffer.getChannelData(0);
+      const int16Data = convertFloat32ToInt16(float32Data);
+      const base64Audio = btoa(String.fromCharCode(...new Uint8Array(int16Data.buffer)));
+      
+      ws.send(JSON.stringify({ audioContent: base64Audio }));
+    };
+    
+    source.connect(processor);
+    processor.connect(audioContext.destination);
+  });
+
+function convertFloat32ToInt16(float32Array) {
+  const int16Array = new Int16Array(float32Array.length);
+  for (let i = 0; i < float32Array.length; i++) {
+    int16Array[i] = Math.max(-32768, Math.min(32767, float32Array[i] * 32768));
+  }
+  return int16Array;
+}
+```
+  </Tab>
+</Tabs>
+
+## Common Errors
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `invalid Base64 encoding` | Malformed Base64 string | Verify encoding is correct |
+| `audio format mismatch` | Audio doesn't match config | Ensure audio matches `encoding` and `sampleRateHertz` |
+| `chunk too large` | Audio chunk exceeds limit | Split into smaller chunks (< 500ms) |

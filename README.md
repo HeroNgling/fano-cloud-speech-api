@@ -18,12 +18,19 @@ fano-mintlify-docs/
 │   └── model-and-language/
 │       └── supported-languages.mdx             # Supported languages
 ├── api-reference/
-│   ├── openapi.json                            # OpenAPI 3.0 specification
+│   ├── openapi.json                            # OpenAPI 3.0 spec (Async STT)
+│   ├── openapi-streaming.yaml                  # OpenAPI 3.1 spec (Streaming STT)
 │   ├── introduction.mdx                        # API reference intro
 │   ├── authentication.mdx                      # Authentication guide
-│   └── async-stt/
-│       ├── submit-transcription.mdx            # POST endpoint (interactive)
-│       └── get-transcription-status.mdx        # GET endpoint (interactive)
+│   ├── async-stt/
+│   │   ├── submit-transcription.mdx            # POST endpoint (interactive)
+│   │   └── get-transcription-status.mdx        # GET endpoint (interactive)
+│   └── streaming-stt/
+│       ├── overview.mdx                        # Streaming overview & examples
+│       ├── configure-stream.mdx                # Configure WebSocket session
+│       ├── send-audio-chunk.mdx                # Send audio data
+│       ├── receive-results.mdx                 # Receive transcription results
+│       └── send-eof.mdx                        # End the session
 └── release-notes/
     └── changelog.mdx                           # Release notes/changelog
 ```
