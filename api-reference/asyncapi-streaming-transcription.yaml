@@ -1,496 +1,240 @@
 asyncapi: 3.0.0
 info:
-  title: Fano Speech API - Streaming Transcription
+  title: Fano Streaming Transcription
   version: 1.0.0
-  description: |
-    Real-time speech recognition using WebSocket connection for live audio streams and conversational applications.
-    
-    ## Overview
-    
-    The Streaming Transcription API enables real-time speech-to-text transcription over a WebSocket connection. It's optimized for low-latency applications where immediate transcription feedback is essential.
-    
-    ## Common Use Cases
-    
-    - **Live Agent Assist:** Transcribe contact center calls in real-time to trigger compliance alerts
-    - **Meeting Transcription:** Live notetaking for Cantonese, Mandarin, and English meetings
-    - **Voice Assistants:** Real-time voice command processing
-    
-    ## Connection Flow
-    
-    ```
-    Client                                    Server
-      |                                          |
-      |  1. WebSocket Connect (with auth)        |
-      |----------------------------------------->|
-      |                                          |
-      |  2. Send Configuration                   |
-      |----------------------------------------->|
-      |                                          |
-      |  3. Send Audio Chunks (continuous)       |
-      |----------------------------------------->|
-      |                                          |
-      |  4. Receive Results (continuous)         |
-      |<-----------------------------------------|
-      |                                          |
-      |  5. Send EOF                             |
-      |----------------------------------------->|
-      |                                          |
-      |  Connection Closed                       |
-      |<-----------------------------------------|
-    ```
-  contact:
-    name: Fano Labs
-    url: https://fano.ai
-  license:
-    name: Proprietary
-    url: https://fano.ai/terms
+  description: Real-time speech-to-text transcription over WebSocket
 
 servers:
   production:
     host: app.fano.ai
-    protocol: wss
     pathname: /api/v1/speech-to-text/streaming-transcript
+    protocol: wss
     description: Production WebSocket Server
-    security:
-      - $ref: '#/components/securitySchemes/fanoLicenseKey'
-
-defaultContentType: application/json
 
 channels:
   streamingTranscript:
     address: /api/v1/speech-to-text/streaming-transcript
-    description: |
-      WebSocket channel for real-time speech transcription.
-      
-      **Authentication:** Include `Fano-license-key` header during WebSocket handshake.
     messages:
       configure:
-        $ref: '#/components/messages/ConfigureMessage'
+        $ref: '#/components/messages/Configure'
       audioChunk:
-        $ref: '#/components/messages/AudioChunkMessage'
+        $ref: '#/components/messages/AudioChunk'
       eof:
-        $ref: '#/components/messages/EOFMessage'
+        $ref: '#/components/messages/EOF'
       transcriptionResult:
-        $ref: '#/components/messages/TranscriptionResultMessage'
+        $ref: '#/components/messages/TranscriptionResult'
       error:
-        $ref: '#/components/messages/ErrorMessage'
+        $ref: '#/components/messages/Error'
 
 operations:
-  configure:
+  sendConfigure:
     action: send
     channel:
       $ref: '#/channels/streamingTranscript'
-    summary: "Step 1: Configure Stream"
-    description: |
-      Send configuration immediately after WebSocket connection is established.
-      This initializes the transcription session with your desired settings.
     messages:
-      - $ref: '#/components/messages/ConfigureMessage'
-
+      - $ref: '#/channels/streamingTranscript/messages/configure'
   sendAudio:
     action: send
     channel:
       $ref: '#/channels/streamingTranscript'
-    summary: "Step 2: Send Audio Chunks"
-    description: |
-      Stream audio data in chunks after configuration.
-      
-      **Recommended chunk size:** 100ms - 500ms of audio data
-      
-      Audio must be Base64 encoded and wrapped in a JSON object.
     messages:
-      - $ref: '#/components/messages/AudioChunkMessage'
-
-  receiveResults:
-    action: receive
-    channel:
-      $ref: '#/channels/streamingTranscript'
-    summary: "Step 3: Receive Real-time Results"
-    description: |
-      The server pushes transcription results as audio is processed.
-      
-      - **Interim results** (`isFinal: false`): Tentative transcriptions that may change
-      - **Final results** (`isFinal: true`): Committed transcriptions that won't change
-    messages:
-      - $ref: '#/components/messages/TranscriptionResultMessage'
-      - $ref: '#/components/messages/ErrorMessage'
-
+      - $ref: '#/channels/streamingTranscript/messages/audioChunk'
   sendEOF:
     action: send
     channel:
       $ref: '#/channels/streamingTranscript'
-    summary: "Step 4: Send EOF"
-    description: |
-      Send EOF (End of File) to gracefully close the streaming session.
-      The server will finish processing any remaining audio and close the connection.
     messages:
-      - $ref: '#/components/messages/EOFMessage'
+      - $ref: '#/channels/streamingTranscript/messages/eof'
+  receiveResult:
+    action: receive
+    channel:
+      $ref: '#/channels/streamingTranscript'
+    messages:
+      - $ref: '#/channels/streamingTranscript/messages/transcriptionResult'
+      - $ref: '#/channels/streamingTranscript/messages/error'
 
 components:
-  securitySchemes:
-    fanoLicenseKey:
-      type: httpApiKey
-      name: Fano-license-key
-      in: header
-      description: Your unique license key provided by Fano Labs
-
   messages:
-    ConfigureMessage:
+    Configure:
       name: Configure
       title: Configuration Message
       summary: Initialize the transcription session
       contentType: application/json
       payload:
-        $ref: '#/components/schemas/ConfigurePayload'
-      examples:
-        - name: Basic Configuration
-          summary: Minimal required configuration
-          payload:
-            config:
-              languageCode: "yue"
+        type: object
+        required:
+          - config
+        properties:
+          config:
+            type: object
+            required:
+              - languageCode
+              - sampleRateHertz
+              - encoding
+            properties:
+              languageCode:
+                type: string
+                description: "Language code: yue, cmn, en, yue-x-auto"
+                enum:
+                  - yue
+                  - cmn
+                  - en
+                  - yue-x-auto
+                examples:
+                  - yue-x-auto
+              sampleRateHertz:
+                type: integer
+                description: Sample rate (8000-48000, optimal 16000)
+                minimum: 8000
+                maximum: 48000
+                examples:
+                  - 16000
+              encoding:
+                type: string
+                description: Audio encoding format
+                enum:
+                  - LINEAR16
+                  - MULAW
+                examples:
+                  - LINEAR16
+              enableAutomaticPunctuation:
+                type: boolean
+                description: Add punctuation to results
+                default: false
+              interimResults:
+                type: boolean
+                description: Return interim results
+                default: false
+              speechContexts:
+                type: object
+                properties:
+                  keywords:
+                    type: array
+                    items:
+                      type: string
+                    description: Keywords for biasing (max 1000)
+        examples:
+          - config:
+              languageCode: yue-x-auto
               sampleRateHertz: 16000
-              encoding: "LINEAR16"
-        - name: Full Configuration
-          summary: All options enabled
-          payload:
-            config:
-              languageCode: "yue-x-auto"
-              sampleRateHertz: 16000
-              encoding: "LINEAR16"
+              encoding: LINEAR16
               enableAutomaticPunctuation: true
               interimResults: true
-              speechContexts:
-                keywords:
-                  - "Fano"
-                  - "transcription"
 
-    AudioChunkMessage:
+    AudioChunk:
       name: AudioChunk
       title: Audio Chunk Message
       summary: Send audio data for transcription
       contentType: application/json
       payload:
-        $ref: '#/components/schemas/AudioChunkPayload'
-      examples:
-        - name: Audio Chunk
-          payload:
-            audioContent: "UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9..."
+        type: object
+        required:
+          - audioContent
+        properties:
+          audioContent:
+            type: string
+            format: byte
+            description: Base64-encoded audio data (100-500ms chunks recommended)
+        examples:
+          - audioContent: UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9...
 
-    EOFMessage:
+    EOF:
       name: EOF
       title: End of File Message
       summary: Signal end of audio stream
       contentType: application/json
       payload:
-        $ref: '#/components/schemas/EOFPayload'
-      examples:
-        - name: EOF Signal
-          payload:
-            eof: true
+        type: object
+        required:
+          - eof
+        properties:
+          eof:
+            type: boolean
+            const: true
+            description: Set to true to end the session
+        examples:
+          - eof: true
 
-    TranscriptionResultMessage:
+    TranscriptionResult:
       name: TranscriptionResult
-      title: Transcription Result Message
+      title: Transcription Result
       summary: Real-time transcription result from server
       contentType: application/json
       payload:
-        $ref: '#/components/schemas/TranscriptionResultPayload'
-      examples:
-        - name: Interim Result
-          summary: Tentative result that may change
-          payload:
-            results:
-              - alternatives:
-                  - transcript: "Hello, how can I"
-                    confidence: 0.0
-                    startTime: "0.000s"
-                    endTime: "1.500s"
-                    languageCode: "en"
-                resultEndTime: "1.500s"
-                channelTag: 1
-                isFinal: false
-            metadata:
+        type: object
+        properties:
+          results:
+            type: array
+            items:
+              type: object
+              properties:
+                alternatives:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      transcript:
+                        type: string
+                        description: Transcribed text
+                      confidence:
+                        type: number
+                        description: Confidence score (0.0-1.0)
+                      startTime:
+                        type: string
+                        description: Start time
+                      endTime:
+                        type: string
+                        description: End time
+                      languageCode:
+                        type: string
+                        description: Detected language
+                isFinal:
+                  type: boolean
+                  description: true = final result, false = interim
+                channelTag:
+                  type: integer
+                resultEndTime:
+                  type: string
+          metadata:
+            type: object
+            properties:
               asrModels:
-                - "model_1"
-        - name: Final Result
-          summary: Committed result that won't change
-          payload:
-            results:
+                type: array
+                items:
+                  type: string
+        examples:
+          - results:
               - alternatives:
-                  - transcript: "Hello, how can I help you today?"
+                  - transcript: "Hello, how can I help you?"
                     confidence: 0.95
                     startTime: "0.000s"
-                    endTime: "3.200s"
-                    languageCode: "en"
-                resultEndTime: "3.200s"
-                channelTag: 1
+                    endTime: "2.500s"
+                    languageCode: en
                 isFinal: true
+                channelTag: 1
+                resultEndTime: "2.500s"
             metadata:
               asrModels:
-                - "model_1"
-                - "model_2"
+                - model_1
 
-    ErrorMessage:
+    Error:
       name: Error
       title: Error Message
       summary: Error response from server
       contentType: application/json
       payload:
-        $ref: '#/components/schemas/ErrorPayload'
-      examples:
-        - name: Invalid Format Error
-          payload:
-            error:
-              code: 3
-              message: "invalid message format"
-        - name: Authentication Error
-          payload:
-            error:
-              code: 401
-              message: "Invalid or missing Fano-license-key"
-
-  schemas:
-    ConfigurePayload:
-      type: object
-      required:
-        - config
-      properties:
-        config:
-          type: object
-          required:
-            - languageCode
-            - sampleRateHertz
-            - encoding
-          properties:
-            languageCode:
-              type: string
-              description: |
-                The language code for transcription (BCP-47 format).
-                
-                | Code | Language |
-                |------|----------|
-                | `yue` | Cantonese |
-                | `cmn` | Mandarin Chinese |
-                | `en` | English |
-                | `yue-x-auto` | Cantonese with auto language detection |
-              enum:
-                - yue
-                - cmn
-                - en
-                - yue-x-auto
-              examples:
-                - "yue-x-auto"
-            sampleRateHertz:
-              type: integer
-              description: |
-                Sample rate in Hertz of the audio data.
-                
-                **Valid range:** 8000 - 48000  
-                **Optimal value:** 16000
-                
-                For best results, set the sampling rate of the audio source to 16000 Hz. If that's not possible, use the native sample rate instead of re-sampling.
-              minimum: 8000
-              maximum: 48000
-              examples:
-                - 16000
-            encoding:
-              type: string
-              description: |
-                The encoding format of the audio data.
-                
-                **Supported formats:**
-                - `LINEAR16` - PCM 16-bit signed little-endian
-                - `MULAW` - 8-bit μ-law
-                
-                > ⚠️ All encodings support only 1 channel (mono) audio, unless `audioChannelCount` and `enableSeparateRecognitionPerChannel` are set.
-              enum:
-                - LINEAR16
-                - MULAW
-              examples:
-                - "LINEAR16"
-            enableAutomaticPunctuation:
-              type: boolean
-              description: If `true`, adds punctuation to recognition results.
-              default: false
-              examples:
-                - true
-            interimResults:
-              type: boolean
-              description: |
-                If `true`, interim results (tentative hypotheses) are returned as they become available, indicated with `isFinal=false`.
-                
-                If `false`, only `isFinal=true` results are returned.
-              default: false
-              examples:
-                - true
-            speechContexts:
-              type: object
-              description: Configuration for keyword biasing features.
-              properties:
-                keywords:
-                  type: array
-                  description: |
-                    Array of keywords to boost recognition accuracy.
-                    
-                    **Limit:** Maximum 1000 items per request. An error is returned if exceeded.
-                  items:
-                    type: string
-                  maxItems: 1000
-                  examples:
-                    - - "Fano"
-                      - "transcription"
-                      - "speech recognition"
-            audioChannelCount:
-              type: integer
-              description: Number of audio channels.
-              default: 1
-              minimum: 1
-              maximum: 8
-            enableSeparateRecognitionPerChannel:
-              type: boolean
-              description: If `true`, enables separate recognition per audio channel. Requires `audioChannelCount` to be set.
-              default: false
-
-    AudioChunkPayload:
-      type: object
-      required:
-        - audioContent
-      properties:
-        audioContent:
-          type: string
-          format: byte
-          description: |
-            The audio data bytes, Base64 encoded.
-            
-            **Recommended chunk size:** 100ms - 500ms of audio data.
-            
-            > 📝 Protocol Buffers use pure binary representation, whereas JSON uses Base64.
-          examples:
-            - "UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9..."
-
-    EOFPayload:
-      type: object
-      required:
-        - eof
-      properties:
-        eof:
-          type: boolean
-          description: Set to `true` to gracefully terminate the connection.
-          const: true
-          examples:
-            - true
-
-    TranscriptionResultPayload:
-      type: object
-      properties:
-        results:
-          type: array
-          description: Array of recognition results.
-          items:
-            $ref: '#/components/schemas/RecognitionResult'
-        metadata:
-          type: object
-          description: Metadata about the transcription process.
-          properties:
-            asrModels:
-              type: array
-              description: List of ASR models used for transcription.
-              items:
+        type: object
+        properties:
+          error:
+            type: object
+            properties:
+              code:
+                type: integer
+                description: gRPC status code
+              message:
                 type: string
-              examples:
-                - - "model_1"
-                  - "model_2"
-
-    RecognitionResult:
-      type: object
-      properties:
-        alternatives:
-          type: array
-          description: Alternative transcriptions, ordered by confidence.
-          items:
-            $ref: '#/components/schemas/SpeechRecognitionAlternative'
-        resultEndTime:
-          type: string
-          description: |
-            Time offset of the end of this result relative to the beginning of the audio.
-            
-            **Format:** `"3.000000001s"` (seconds with nanosecond precision)
-          examples:
-            - "3.200s"
-        channelTag:
-          type: integer
-          description: Channel identifier for multi-channel audio.
-          examples:
-            - 1
-        isFinal:
-          type: boolean
-          description: |
-            - `false` - Interim result that may change
-            - `true` - Final result, no further updates for this portion of audio
-          examples:
-            - false
-
-    SpeechRecognitionAlternative:
-      type: object
-      properties:
-        transcript:
-          type: string
-          description: Transcript text representing the words that the user spoke.
-          examples:
-            - "Hello, how can I help you today?"
-        confidence:
-          type: number
-          format: float
-          description: |
-            Confidence estimate between 0.0 and 1.0. Higher values indicate greater likelihood of correctness.
-            
-            > ⚠️ A value of `0.0` is a sentinel indicating confidence was not set. This field is not guaranteed to be accurate and should not be relied upon.
-          minimum: 0.0
-          maximum: 1.0
-          examples:
-            - 0.95
-        startTime:
-          type: string
-          description: |
-            Start time of detected audio segment with voice activity.
-            
-            **Format:** `"0.000s"` (seconds with millisecond precision)
-          examples:
-            - "0.000s"
-        endTime:
-          type: string
-          description: |
-            End time of detected audio segment with voice activity.
-            
-            **Format:** `"3.200s"` (seconds with millisecond precision)
-          examples:
-            - "3.200s"
-        languageCode:
-          type: string
-          description: Detected language code of the segment (BCP-47 format).
-          examples:
-            - "en"
-
-    ErrorPayload:
-      type: object
-      properties:
-        error:
-          type: object
-          properties:
-            code:
-              type: integer
-              description: |
-                gRPC status code. See [gRPC Status Codes](https://grpc.github.io/grpc/core/md_doc_statuscodes.html).
-                
-                | Code | Description | Troubleshooting |
-                |------|-------------|-----------------|
-                | `3` | Invalid Argument | Check JSON format or message schema |
-                | `400` | Bad Request | Verify Base64 encoding |
-                | `401` | Unauthorized | Check `Fano-license-key` |
-              examples:
-                - 3
-            message:
-              type: string
-              description: Human-readable error message.
-              examples:
-                - "invalid message format"
+                description: Error message
+        examples:
+          - error:
+              code: 3
+              message: invalid message format

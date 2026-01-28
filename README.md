@@ -15,11 +15,52 @@ Mintlify **natively supports WebSocket playground** via AsyncAPI 3.0+. The Strea
 
 See Mintlify's demo: https://www.mintlify.com/docs/api-playground/asyncapi/playground
 
+## 🔧 WebSocket Configuration
+
+The WebSocket playground uses **AsyncAPI 3.0** specification. Configuration in `mint.json`:
+
+```json
+{
+  "group": "Streaming STT",
+  "asyncapi": "/api-reference/asyncapi-streaming-transcription.yaml"
+}
+```
+
+**Important**: Mintlify will auto-generate the WebSocket pages from the AsyncAPI spec.
+
+## 🐛 Troubleshooting WebSocket Playground
+
+If the "Connect" / "Try it" button doesn't appear:
+
+### 1. Validate AsyncAPI Spec
+Go to https://studio.asyncapi.com/ and paste the content of `asyncapi-streaming-transcription.yaml` to validate.
+
+### 2. Check AsyncAPI Version
+Must be `asyncapi: 3.0.0` (not 2.x)
+
+### 3. Alternative: MDX Frontmatter Approach
+If auto-generate doesn't work, use `mint.pages.json` instead:
+
+```bash
+# Rename mint.pages.json to mint.json
+mv mint.json mint.asyncapi.json
+mv mint.pages.json mint.json
+```
+
+The `mint.pages.json` uses MDX frontmatter approach with `api-reference/streaming-stt/streaming-transcription.mdx`.
+
+### 4. Run Mintlify CLI Locally
+```bash
+npx mintlify dev
+```
+Check console for AsyncAPI parsing errors.
+
 ## 📁 File Structure
 
 ```
 fano-mintlify-docs/
-├── mint.json                                    # Main configuration file
+├── mint.json                                    # Main config (AsyncAPI auto-generate approach)
+├── mint.pages.json                              # Alternative config (MDX frontmatter approach)
 ├── docs/
 │   ├── introduction.mdx                         # Overview/home page
 │   ├── get-started/
@@ -32,14 +73,14 @@ fano-mintlify-docs/
 │       └── supported-languages.mdx             # Supported languages
 ├── api-reference/
 │   ├── openapi.json                            # OpenAPI 3.0 spec (Async STT)
-│   ├── asyncapi-streaming-transcription.yaml   # AsyncAPI 3.0 spec (Streaming STT - WSS playground)
+│   ├── asyncapi-streaming-transcription.yaml   # AsyncAPI 3.0 spec (Streaming STT)
 │   ├── introduction.mdx                        # API reference intro
 │   ├── authentication.mdx                      # Authentication guide
 │   ├── async-stt/
 │   │   ├── submit-transcription.mdx            # POST endpoint (REST playground)
 │   │   └── get-transcription-status.mdx        # GET endpoint (REST playground)
 │   └── streaming-stt/
-│       └── streaming-transcription.mdx         # WebSocket API (WSS playground with Connect/Send)
+│       └── streaming-transcription.mdx         # WebSocket API (MDX with asyncapi frontmatter)
 └── release-notes/
     └── changelog.mdx                           # Release notes/changelog
 ```
