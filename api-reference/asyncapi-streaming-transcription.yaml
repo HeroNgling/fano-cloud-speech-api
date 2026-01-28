@@ -41,7 +41,7 @@ channels:
 operations:
   # Client SENDS these messages (server receives)
   sendConfig:
-    action: send
+    action: receive
     channel:
       $ref: '#/channels/transcription'
     title: "Step 1: Configure"
@@ -50,7 +50,7 @@ operations:
       - $ref: '#/channels/transcription/messages/configure'
 
   sendAudio:
-    action: send
+    action: receive
     channel:
       $ref: '#/channels/transcription'
     title: "Step 2: Send Audio"
@@ -59,7 +59,7 @@ operations:
       - $ref: '#/channels/transcription/messages/audioChunk'
 
   sendEOF:
-    action: send
+    action: receive
     channel:
       $ref: '#/channels/transcription'
     title: "Step 3: Send EOF"
@@ -69,7 +69,7 @@ operations:
 
   # Client RECEIVES these messages (server sends)
   receiveResult:
-    action: receive
+    action: send
     channel:
       $ref: '#/channels/transcription'
     title: "Transcription Result"
@@ -78,7 +78,7 @@ operations:
       - $ref: '#/channels/transcription/messages/result'
 
   receiveError:
-    action: receive
+    action: send
     channel:
       $ref: '#/channels/transcription'
     title: "Error"
