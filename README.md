@@ -1,12 +1,92 @@
 # Fano Speech API Documentation - Mintlify Migration Guide
 
+<<<<<<< Updated upstream
 This folder contains all the documentation files ready to be imported into Mintlify, including an **interactive API reference** powered by OpenAPI/Swagger.
+=======
+This folder contains all the documentation files ready to be imported into Mintlify, including:
+- **Interactive REST API playground** powered by OpenAPI/Swagger
+- **WebSocket API documentation** powered by AsyncAPI 3.0
+
+## 🔐 WebSocket Authentication
+
+The AsyncAPI spec now includes proper `securitySchemes` configuration:
+
+```yaml
+servers:
+  production:
+    host: app.fano.ai
+    pathname: /api/v1/speech-to-text/streaming-transcript
+    protocol: wss
+    security:
+      - $ref: '#/components/securitySchemes/apiKey'
+
+components:
+  securitySchemes:
+    apiKey:
+      type: httpApiKey
+      name: Fano-license-key
+      in: header
+      description: Your Fano API license key for authentication
+```
+
+This follows the AsyncAPI 3.0 standard for HTTP API key authentication in headers.
+
+## 🔧 Configuration
+
+The WebSocket playground uses **AsyncAPI 3.0** specification. Configuration in `mint.json`:
+
+```json
+{
+  "group": "Streaming STT",
+  "asyncapi": "/api-reference/asyncapi-streaming-transcription.yaml"
+}
+```
+
+## 🐛 Troubleshooting WebSocket Playground
+
+If the "Connect" button doesn't work or authentication field is missing:
+
+### 1. Validate AsyncAPI Spec
+Go to https://studio.asyncapi.com/ and paste the content of `asyncapi-streaming-transcription.yaml` to validate.
+
+### 2. Check AsyncAPI Version
+Must be `asyncapi: 3.0.0` (not 2.x)
+
+### 3. Alternative: MDX Frontmatter Approach
+If auto-generate doesn't work, use `mint.pages.json` instead:
+
+```bash
+# Rename mint.pages.json to mint.json
+mv mint.json mint.asyncapi.json
+mv mint.pages.json mint.json
+```
+
+### 4. Run Mintlify CLI Locally
+```bash
+npx mintlify dev
+```
+Check console for AsyncAPI parsing errors.
+>>>>>>> Stashed changes
+
+## ⚠️ Browser WebSocket Limitation
+
+**Note**: Browser WebSocket API cannot send custom headers during the handshake. This is a browser limitation, not Mintlify's.
+
+For actual testing with authentication, use:
+- **wscat** (CLI): `wscat -c "wss://..." -H "Fano-license-key: YOUR_KEY"`
+- **Postman** (GUI): WebSocket request with custom headers
+- **Python/Node.js**: Code examples in the documentation
 
 ## 📁 File Structure
 
 ```
 fano-mintlify-docs/
+<<<<<<< Updated upstream
 ├── mint.json                                    # Main configuration file
+=======
+├── mint.json                                    # Main configuration
+├── mint.pages.json                              # Alternative config
+>>>>>>> Stashed changes
 ├── docs/
 │   ├── introduction.mdx                         # Overview/home page
 │   ├── get-started/
@@ -23,6 +103,7 @@ fano-mintlify-docs/
 │   ├── introduction.mdx                        # API reference intro
 │   ├── authentication.mdx                      # Authentication guide
 │   ├── async-stt/
+<<<<<<< Updated upstream
 │   │   ├── submit-transcription.mdx            # POST endpoint (interactive)
 │   │   └── get-transcription-status.mdx        # GET endpoint (interactive)
 │   └── streaming-stt/
@@ -31,99 +112,24 @@ fano-mintlify-docs/
 │       ├── send-audio-chunk.mdx                # Send audio data
 │       ├── receive-results.mdx                 # Receive transcription results
 │       └── send-eof.mdx                        # End the session
+=======
+│   │   ├── submit-transcription.mdx            # POST endpoint
+│   │   └── get-transcription-status.mdx        # GET endpoint
+│   └── streaming-stt/
+│       └── streaming-transcription.mdx         # WebSocket API
+>>>>>>> Stashed changes
 └── release-notes/
-    └── changelog.mdx                           # Release notes/changelog
+    └── changelog.mdx                           # Release notes
 ```
 
-## 🚀 Step-by-Step Import Procedure
+## 🚀 Deployment
 
-### Step 1: Create a Mintlify Account
-1. Go to [mintlify.com](https://mintlify.com)
-2. Sign up or log in to your account
-3. Create a new project or select an existing one
+1. Push files to your GitHub repo connected to Mintlify
+2. Mintlify will auto-deploy on push
+3. Verify at your Mintlify URL
 
-### Step 2: Set Up Your Repository
-Mintlify works with GitHub repositories. You have two options:
+## 📚 Resources
 
-**Option A: Create a new GitHub repository**
-1. Create a new repository on GitHub (e.g., `fano-speech-api-docs`)
-2. Clone the repository to your local machine
-3. Copy all files from this folder into the repository
-
-**Option B: Use Mintlify's quickstart**
-1. In Mintlify dashboard, click "Create new docs"
-2. Choose "Connect GitHub" and authorize
-3. Mintlify will create a starter repository for you
-4. Replace the generated files with the files from this folder
-
-### Step 3: Upload the Documentation Files
-Copy all the files and folders from this directory to your repository:
-
-```bash
-# If using command line
-cp -r fano-mintlify-docs/* /path/to/your/mintlify-repo/
-```
-
-### Step 4: Add Logo and Favicon (Optional but Recommended)
-1. Create a `logo` folder in your repository root
-2. Add your logo files:
-   - `logo/light.svg` - Logo for light mode
-   - `logo/dark.svg` - Logo for dark mode
-3. Add `favicon.svg` to the root directory
-
-### Step 5: Connect to Mintlify
-1. In your Mintlify dashboard, go to Settings
-2. Connect your GitHub repository
-3. Select the branch (usually `main`)
-4. Mintlify will automatically detect your `mint.json` file
-
-### Step 6: Deploy
-1. Push your changes to GitHub
-2. Mintlify will automatically build and deploy your documentation
-3. Your docs will be live at your Mintlify URL (or custom domain)
-
-## 🔧 Customization
-
-### Update Colors
-Edit `mint.json` to change the color scheme:
-```json
-"colors": {
-  "primary": "#YOUR_COLOR",
-  "light": "#YOUR_LIGHT_COLOR",
-  "dark": "#YOUR_DARK_COLOR"
-}
-```
-
-### Update Links
-Edit `mint.json` to update:
-- `topbarCtaButton.url` - Your dashboard URL
-- `footerSocials` - Your social media links
-
-### Add More Pages
-1. Create a new `.mdx` file in the appropriate folder
-2. Add frontmatter at the top:
-   ```yaml
-   ---
-   title: 'Page Title'
-   description: 'Page description'
-   icon: 'icon-name'
-   ---
-   ```
-3. Add the file path to the `navigation` array in `mint.json`
-
-## 📝 Notes
-
-- All files use MDX format (Markdown + JSX components)
-- Mintlify components like `<Card>`, `<CodeGroup>`, `<Accordion>`, etc. are pre-built
-- Code examples support syntax highlighting for multiple languages
-- The navigation structure in `mint.json` controls the sidebar
-
-## 🆘 Need Help?
-
-- [Mintlify Documentation](https://mintlify.com/docs)
-- [Mintlify Components Reference](https://mintlify.com/docs/components)
-- [Mintlify GitHub](https://github.com/mintlify)
-
----
-
-Generated from GitBook content at: https://fano.gitbook.io/fano-speech-api
+- [Mintlify AsyncAPI Setup](https://www.mintlify.com/docs/api-playground/asyncapi/setup)
+- [AsyncAPI 3.0 Spec](https://www.asyncapi.com/docs/reference/specification/v3.0.0)
+- [AsyncAPI Studio](https://studio.asyncapi.com/) - Validate your spec
