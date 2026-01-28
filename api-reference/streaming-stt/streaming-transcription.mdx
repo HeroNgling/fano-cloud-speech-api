@@ -1,11 +1,11 @@
 ---
 title: "Streaming Transcription"
-api: "WSS wss://app.fano.ai/api/v1/speech-to-text/streaming-transcript"
+asyncapi: "api-reference/asyncapi-streaming-transcription.yaml streamingTranscript"
 description: "Real-time speech recognition using WebSocket for live audio streams"
 ---
 
 <Note>
-This is a **WebSocket API**. Unlike REST APIs, you establish a persistent connection and exchange messages bidirectionally.
+This is a **WebSocket API** with an interactive playground. Click **Connect** to establish a connection, then use **Send** to test messages.
 </Note>
 
 ## Overview
@@ -36,7 +36,7 @@ The Streaming Transcription API enables real-time speech-to-text transcription o
     Obtain your `Fano-license-key` from the Developer Portal
   </Step>
   <Step title="Connect to WebSocket">
-    Establish a secure WebSocket connection to the endpoint
+    Use the playground above to connect, or establish a connection programmatically
   </Step>
   <Step title="Send Configuration">
     Initialize the session with your language and audio settings
@@ -45,22 +45,6 @@ The Streaming Transcription API enables real-time speech-to-text transcription o
     Send audio chunks and receive real-time transcriptions
   </Step>
 </Steps>
-
----
-
-## Base URL
-
-```bash
-wss://app.fano.ai/api/v1/speech-to-text/streaming-transcript
-```
-
----
-
-## Authentication
-
-<ParamField header="Fano-license-key" type="string" required>
-  Your unique license key provided by Fano Labs
-</ParamField>
 
 ---
 
@@ -84,158 +68,6 @@ sequenceDiagram
     
     Client->>Server: 5. Send EOF
     Server-->>Client: Connection Closed
-```
-
----
-
-## Message Reference
-
-### Step 1: Configure Stream
-
-<Expandable title="Request Schema">
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `config.languageCode` | string | ✅ | Language code: `yue`, `cmn`, `en`, `yue-x-auto` |
-| `config.sampleRateHertz` | integer | ✅ | Sample rate: 8000-48000 (optimal: 16000) |
-| `config.encoding` | string | ✅ | Audio encoding: `LINEAR16` or `MULAW` |
-| `config.enableAutomaticPunctuation` | boolean | ❌ | Add punctuation (default: `false`) |
-| `config.interimResults` | boolean | ❌ | Return interim results (default: `false`) |
-| `config.speechContexts.keywords` | string[] | ❌ | Keywords for biasing (max 1000) |
-
-</Expandable>
-
-<CodeGroup>
-
-```json Basic
-{
-  "config": {
-    "languageCode": "yue",
-    "sampleRateHertz": 16000,
-    "encoding": "LINEAR16"
-  }
-}
-```
-
-```json With All Options
-{
-  "config": {
-    "languageCode": "yue-x-auto",
-    "sampleRateHertz": 16000,
-    "encoding": "LINEAR16",
-    "enableAutomaticPunctuation": true,
-    "interimResults": true,
-    "speechContexts": {
-      "keywords": ["Fano", "transcription"]
-    }
-  }
-}
-```
-
-</CodeGroup>
-
----
-
-### Step 2: Send Audio Chunks
-
-<Expandable title="Request Schema">
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `audioContent` | string | ✅ | Base64-encoded audio data |
-
-</Expandable>
-
-<Tip>
-**Recommended chunk size:** 100ms - 500ms of audio data for optimal latency and accuracy.
-</Tip>
-
-```json
-{
-  "audioContent": "UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9..."
-}
-```
-
----
-
-### Step 3: Receive Results
-
-<Expandable title="Response Schema">
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `results[].alternatives[].transcript` | string | Transcribed text |
-| `results[].alternatives[].confidence` | float | Confidence score (0.0-1.0) |
-| `results[].alternatives[].startTime` | string | Start time (e.g., "0.000s") |
-| `results[].alternatives[].endTime` | string | End time (e.g., "3.200s") |
-| `results[].alternatives[].languageCode` | string | Detected language |
-| `results[].resultEndTime` | string | Result end time |
-| `results[].channelTag` | integer | Channel identifier |
-| `results[].isFinal` | boolean | `true` = final, `false` = interim |
-| `metadata.asrModels` | string[] | Models used |
-
-</Expandable>
-
-<CodeGroup>
-
-```json Interim Result
-{
-  "results": [
-    {
-      "alternatives": [
-        {
-          "transcript": "Hello, how can I",
-          "confidence": 0.0,
-          "startTime": "0.000s",
-          "endTime": "1.500s",
-          "languageCode": "en"
-        }
-      ],
-      "resultEndTime": "1.500s",
-      "channelTag": 1,
-      "isFinal": false
-    }
-  ],
-  "metadata": {
-    "asrModels": ["model_1"]
-  }
-}
-```
-
-```json Final Result
-{
-  "results": [
-    {
-      "alternatives": [
-        {
-          "transcript": "Hello, how can I help you today?",
-          "confidence": 0.95,
-          "startTime": "0.000s",
-          "endTime": "3.200s",
-          "languageCode": "en"
-        }
-      ],
-      "resultEndTime": "3.200s",
-      "channelTag": 1,
-      "isFinal": true
-    }
-  ],
-  "metadata": {
-    "asrModels": ["model_1", "model_2"]
-  }
-}
-```
-
-</CodeGroup>
-
----
-
-### Step 4: Send EOF
-
-```json
-{
-  "eof": true
-}
 ```
 
 ---
@@ -323,7 +155,6 @@ ws.on('open', () => {
   }));
 
   // Example: Send audio chunks
-  // In real usage, stream from microphone or file
   const audioChunk = Buffer.from('...').toString('base64');
   ws.send(JSON.stringify({ audioContent: audioChunk }));
 });
@@ -346,13 +177,12 @@ ws.on('close', () => console.log('Connection closed'));
 ws.on('error', (err) => console.error('Error:', err));
 ```
   </Tab>
-  <Tab title="cURL (Test)">
+  <Tab title="wscat (Test)">
 ```bash
-# WebSocket connections cannot be tested with cURL directly.
-# Use wscat for testing:
-
+# Install wscat for WebSocket testing
 npm install -g wscat
 
+# Connect to the streaming endpoint
 wscat -c "wss://app.fano.ai/api/v1/speech-to-text/streaming-transcript" \
   -H "Fano-license-key: YOUR_API_KEY"
 
@@ -363,36 +193,6 @@ wscat -c "wss://app.fano.ai/api/v1/speech-to-text/streaming-transcript" \
 ```
   </Tab>
 </Tabs>
-
----
-
-## Error Handling
-
-<ResponseField name="error" type="object">
-  <Expandable title="properties">
-    <ResponseField name="code" type="integer">
-      gRPC status code
-    </ResponseField>
-    <ResponseField name="message" type="string">
-      Human-readable error description
-    </ResponseField>
-  </Expandable>
-</ResponseField>
-
-| Code | Description | Troubleshooting |
-|------|-------------|-----------------|
-| `401` | Unauthorized | Verify your `Fano-license-key` is correct |
-| `400` | Bad Request | Check JSON format or Base64 encoding |
-| `3` | Invalid Argument | Verify message schema matches specification |
-
-```json Error Response
-{
-  "error": {
-    "code": 3,
-    "message": "invalid message format"
-  }
-}
-```
 
 ---
 
@@ -418,4 +218,4 @@ Audio must conform to these requirements or transcription will fail.
 | `yue` | Cantonese | |
 | `cmn` | Mandarin Chinese | |
 | `en` | English | |
-| `yue-x-auto` | Cantonese | With automatic language detection for code-switching |
+| `yue-x-auto` | Multilingual | Automatic language detection for code-switching |

@@ -1,14 +1,19 @@
 # Fano Speech API Documentation - Mintlify Migration Guide
 
-This folder contains all the documentation files ready to be imported into Mintlify, including an **interactive API reference** powered by OpenAPI/Swagger.
+This folder contains all the documentation files ready to be imported into Mintlify, including:
+- **Interactive REST API playground** powered by OpenAPI/Swagger
+- **Interactive WebSocket playground** powered by AsyncAPI 3.0
 
-## ⚠️ WebSocket API Playground Note
+## ✅ WebSocket Playground Support
 
-Mintlify's API playground is primarily designed for REST APIs. For the **Streaming STT WebSocket API**:
-- The `api: "WSS wss://..."` frontmatter enables WebSocket endpoint display
-- The OpenAPI spec provides schema documentation
-- Users should use the provided code examples (Python, JavaScript, wscat) to test WebSocket connections
-- Consider linking to [AsyncAPI Studio](https://studio.asyncapi.com/) for interactive WebSocket testing
+Mintlify **natively supports WebSocket playground** via AsyncAPI 3.0+. The Streaming STT API includes:
+- **Connect** button to establish WebSocket connection
+- **Send** button to send messages (Configure, Audio, EOF)
+- **Receive** panel showing real-time transcription results
+- **Schema documentation** auto-generated from AsyncAPI spec
+- **Multiple server URLs** support (dropdown)
+
+See Mintlify's demo: https://www.mintlify.com/docs/api-playground/asyncapi/playground
 
 ## 📁 File Structure
 
@@ -27,14 +32,14 @@ fano-mintlify-docs/
 │       └── supported-languages.mdx             # Supported languages
 ├── api-reference/
 │   ├── openapi.json                            # OpenAPI 3.0 spec (Async STT)
-│   ├── openapi-streaming.yaml                  # OpenAPI 3.1 spec (Streaming STT)
+│   ├── asyncapi-streaming-transcription.yaml   # AsyncAPI 3.0 spec (Streaming STT - WSS playground)
 │   ├── introduction.mdx                        # API reference intro
 │   ├── authentication.mdx                      # Authentication guide
 │   ├── async-stt/
-│   │   ├── submit-transcription.mdx            # POST endpoint (interactive)
-│   │   └── get-transcription-status.mdx        # GET endpoint (interactive)
+│   │   ├── submit-transcription.mdx            # POST endpoint (REST playground)
+│   │   └── get-transcription-status.mdx        # GET endpoint (REST playground)
 │   └── streaming-stt/
-│       └── streaming-transcription.mdx         # WebSocket API (WSS playground)
+│       └── streaming-transcription.mdx         # WebSocket API (WSS playground with Connect/Send)
 └── release-notes/
     └── changelog.mdx                           # Release notes/changelog
 ```
