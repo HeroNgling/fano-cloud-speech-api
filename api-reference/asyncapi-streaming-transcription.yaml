@@ -1,0 +1,268 @@
+asyncapi: 3.0.0
+info:
+  title: Fano Streaming Transcription API
+  version: 1.0.0
+  description: Real-time speech-to-text transcription over WebSocket
+
+servers:
+  production:
+    host: app.fano.ai
+    pathname: /api/v1/speech-to-text/streaming-transcript
+    protocol: wss
+    description: Production WebSocket Server
+
+channels:
+  transcription:
+    address: /api/v1/speech-to-text/streaming-transcript
+    bindings:
+      ws:
+        headers:
+          type: object
+          required:
+            - Fano-license-key
+          properties:
+            Fano-license-key:
+              type: string
+              description: Your Fano API license key for authentication
+              examples:
+                - "your-api-key-here"
+    messages:
+      configure:
+        $ref: '#/components/messages/Configure'
+      audioChunk:
+        $ref: '#/components/messages/AudioChunk'
+      eof:
+        $ref: '#/components/messages/EOF'
+      result:
+        $ref: '#/components/messages/TranscriptionResult'
+      error:
+        $ref: '#/components/messages/Error'
+
+operations:
+  # Client SENDS these messages (server receives)
+  sendConfig:
+    action: send
+    channel:
+      $ref: '#/channels/transcription'
+    title: "Step 1: Configure"
+    summary: Send configuration to initialize the session
+    messages:
+      - $ref: '#/channels/transcription/messages/configure'
+
+  sendAudio:
+    action: send
+    channel:
+      $ref: '#/channels/transcription'
+    title: "Step 2: Send Audio"
+    summary: Stream Base64-encoded audio chunks
+    messages:
+      - $ref: '#/channels/transcription/messages/audioChunk'
+
+  sendEOF:
+    action: send
+    channel:
+      $ref: '#/channels/transcription'
+    title: "Step 3: Send EOF"
+    summary: Signal end of audio stream
+    messages:
+      - $ref: '#/channels/transcription/messages/eof'
+
+  # Client RECEIVES these messages (server sends)
+  receiveResult:
+    action: receive
+    channel:
+      $ref: '#/channels/transcription'
+    title: "Transcription Result"
+    summary: Receive real-time transcription results
+    messages:
+      - $ref: '#/channels/transcription/messages/result'
+
+  receiveError:
+    action: receive
+    channel:
+      $ref: '#/channels/transcription'
+    title: "Error"
+    summary: Receive error messages
+    messages:
+      - $ref: '#/channels/transcription/messages/error'
+
+components:
+  messages:
+    Configure:
+      name: Configure
+      title: Configuration Message
+      summary: Initialize the transcription session
+      contentType: application/json
+      payload:
+        type: object
+        required:
+          - config
+        properties:
+          config:
+            type: object
+            required:
+              - languageCode
+              - sampleRateHertz
+              - encoding
+            properties:
+              languageCode:
+                type: string
+                enum:
+                  - yue
+                  - cmn
+                  - en
+                  - yue-x-auto
+                description: "Language code (yue=Cantonese, cmn=Mandarin, en=English, yue-x-auto=Multilingual)"
+                default: "yue-x-auto"
+              sampleRateHertz:
+                type: integer
+                minimum: 8000
+                maximum: 48000
+                description: "Audio sample rate in Hz (recommended: 16000)"
+                default: 16000
+              encoding:
+                type: string
+                enum:
+                  - LINEAR16
+                  - MULAW
+                description: "Audio encoding format"
+                default: "LINEAR16"
+              enableAutomaticPunctuation:
+                type: boolean
+                description: "Add punctuation to results"
+                default: false
+              interimResults:
+                type: boolean
+                description: "Return interim results before final"
+                default: false
+              speechContexts:
+                type: object
+                properties:
+                  keywords:
+                    type: array
+                    items:
+                      type: string
+                    description: "Keywords to boost recognition (max 1000)"
+        examples:
+          - config:
+              languageCode: "yue-x-auto"
+              sampleRateHertz: 16000
+              encoding: "LINEAR16"
+              enableAutomaticPunctuation: true
+              interimResults: true
+
+    AudioChunk:
+      name: AudioChunk
+      title: Audio Chunk Message
+      summary: Send Base64-encoded audio data
+      contentType: application/json
+      payload:
+        type: object
+        required:
+          - audioContent
+        properties:
+          audioContent:
+            type: string
+            format: byte
+            description: "Base64-encoded audio data (100-500ms chunks recommended)"
+        examples:
+          - audioContent: "UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQAAAAA="
+
+    EOF:
+      name: EOF
+      title: End of File Message
+      summary: Signal end of audio stream to close session
+      contentType: application/json
+      payload:
+        type: object
+        required:
+          - eof
+        properties:
+          eof:
+            type: boolean
+            const: true
+            description: "Set to true to end the session"
+            default: true
+        examples:
+          - eof: true
+
+    TranscriptionResult:
+      name: TranscriptionResult
+      title: Transcription Result
+      summary: Real-time transcription result from server
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          results:
+            type: array
+            items:
+              type: object
+              properties:
+                alternatives:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      transcript:
+                        type: string
+                        description: "Transcribed text"
+                      confidence:
+                        type: number
+                        description: "Confidence score (0.0-1.0)"
+                      startTime:
+                        type: string
+                      endTime:
+                        type: string
+                      languageCode:
+                        type: string
+                isFinal:
+                  type: boolean
+                  description: "true=final result, false=interim"
+                channelTag:
+                  type: integer
+                resultEndTime:
+                  type: string
+          metadata:
+            type: object
+            properties:
+              asrModels:
+                type: array
+                items:
+                  type: string
+        examples:
+          - results:
+              - alternatives:
+                  - transcript: "你好，有咩可以幫到你？"
+                    confidence: 0.95
+                    startTime: "0.000s"
+                    endTime: "2.500s"
+                    languageCode: "yue"
+                isFinal: true
+                channelTag: 1
+                resultEndTime: "2.500s"
+            metadata:
+              asrModels:
+                - "cantonese-v2"
+
+    Error:
+      name: Error
+      title: Error Message
+      summary: Error response from server
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          error:
+            type: object
+            properties:
+              code:
+                type: integer
+                description: "Error code (3=InvalidArgument, 401=Unauthorized)"
+              message:
+                type: string
+                description: "Error description"
+        examples:
+          - error:
+              code: 3
+              message: "invalid languageCode: must be one of yue, cmn, en, yue-x-auto"

@@ -40,8 +40,7 @@
     }
   ],
   "openapi": [
-    "/api-reference/openapi.json",
-    "/api-reference/asyncapi-streaming-transcription.json"
+    "/api-reference/openapi.json"
   ],
   "api": {
     "baseUrl": "https://studio.fano.ai",
