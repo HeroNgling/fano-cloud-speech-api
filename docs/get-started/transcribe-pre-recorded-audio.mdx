@@ -1,0 +1,172 @@
+---
+title: 'Transcribe Pre-recorded Audio'
+description: 'Learn how to transcribe audio files using the Fano Speech API'
+icon: 'file-audio'
+---
+
+# Transcribe Pre-recorded Audio
+
+This guide shows you how to transcribe pre-recorded audio files using the Fano Speech API.
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- A valid Fano Speech API key
+- An audio file in a supported format (WAV, MP3, FLAC, etc.)
+
+## Supported Audio Formats
+
+| Format | Extension | Notes |
+|--------|-----------|-------|
+| WAV | `.wav` | Recommended for best quality |
+| MP3 | `.mp3` | Good for compressed audio |
+| FLAC | `.flac` | Lossless compression |
+| OGG | `.ogg` | Open source format |
+
+## Quick Start
+
+<CodeGroup>
+
+```python Python
+import requests
+
+API_KEY = "your_api_key_here"
+API_URL = "https://api.fano.ai/v1/transcribe"
+
+# Read audio file
+with open("audio.wav", "rb") as f:
+    audio_data = f.read()
+
+# Make request
+headers = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "audio/wav"
+}
+
+response = requests.post(API_URL, headers=headers, data=audio_data)
+result = response.json()
+
+print(result["transcript"])
+```
+
+```javascript JavaScript
+const fs = require('fs');
+const axios = require('axios');
+
+const API_KEY = 'your_api_key_here';
+const API_URL = 'https://api.fano.ai/v1/transcribe';
+
+async function transcribeAudio() {
+  const audioData = fs.readFileSync('audio.wav');
+  
+  const response = await axios.post(API_URL, audioData, {
+    headers: {
+      'Authorization': `Bearer ${API_KEY}`,
+      'Content-Type': 'audio/wav'
+    }
+  });
+  
+  console.log(response.data.transcript);
+}
+
+transcribeAudio();
+```
+
+```bash cURL
+curl -X POST "https://api.fano.ai/v1/transcribe" \
+  -H "Authorization: Bearer your_api_key_here" \
+  -H "Content-Type: audio/wav" \
+  --data-binary @audio.wav
+```
+
+</CodeGroup>
+
+## Request Parameters
+
+<ParamField body="language" type="string" default="auto">
+  The language of the audio. Use `auto` for automatic detection.
+  
+  Supported values: `en`, `zh-HK` (Cantonese), `zh-CN` (Mandarin), `auto`
+</ParamField>
+
+<ParamField body="model" type="string" default="general">
+  The speech recognition model to use.
+  
+  Supported values: `general`, `telephony`, `meeting`
+</ParamField>
+
+<ParamField body="diarization" type="boolean" default="false">
+  Enable speaker diarization to identify different speakers.
+</ParamField>
+
+<ParamField body="punctuation" type="boolean" default="true">
+  Enable automatic punctuation in the transcript.
+</ParamField>
+
+<ParamField body="keywords" type="array">
+  Array of keywords to boost recognition accuracy.
+</ParamField>
+
+## Response Format
+
+```json
+{
+  "transcript": "Hello, this is a sample transcription.",
+  "confidence": 0.95,
+  "language": "en",
+  "duration": 5.2,
+  "words": [
+    {
+      "word": "Hello",
+      "start": 0.0,
+      "end": 0.5,
+      "confidence": 0.98
+    },
+    {
+      "word": "this",
+      "start": 0.6,
+      "end": 0.8,
+      "confidence": 0.96
+    }
+  ]
+}
+```
+
+## Error Handling
+
+<AccordionGroup>
+  <Accordion title="400 - Bad Request">
+    The request was malformed. Check your audio format and parameters.
+  </Accordion>
+  <Accordion title="401 - Unauthorized">
+    Invalid or missing API key. Verify your credentials.
+  </Accordion>
+  <Accordion title="413 - Payload Too Large">
+    Audio file exceeds the maximum size limit. Try compressing or splitting the file.
+  </Accordion>
+  <Accordion title="429 - Rate Limited">
+    Too many requests. Implement exponential backoff.
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<Tip>
+For best transcription accuracy:
+- Use high-quality audio recordings (16kHz sample rate or higher)
+- Minimize background noise
+- Use the appropriate model for your use case
+- Enable keyword biasing for domain-specific terms
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Keyword Biasing" icon="bullseye" href="/docs/features/keyword-biasing">
+    Improve accuracy for specific terms
+  </Card>
+  <Card title="Streaming Audio" icon="signal-stream" href="/docs/get-started/transcribe-streaming-audio">
+    Set up real-time transcription
+  </Card>
+</CardGroup>

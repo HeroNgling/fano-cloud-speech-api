@@ -1,0 +1,129 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Fano Speech API",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373",
+    "anchors": {
+      "from": "#0D9373",
+      "to": "#07C983"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Support",
+      "url": "mailto:hello@fano.ai"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Dashboard",
+    "url": "https://your-dashboard-url.com"
+  },
+  "tabs": [
+    {
+      "name": "Documentation",
+      "url": "docs"
+    },
+    {
+      "name": "API Reference",
+      "url": "api-reference"
+    },
+    {
+      "name": "Release Notes",
+      "url": "release-notes"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "API Reference",
+      "icon": "rectangle-terminal",
+      "url": "api-reference"
+    },
+    {
+      "name": "Release Notes",
+      "icon": "newspaper",
+      "url": "release-notes"
+    },
+    {
+      "name": "Fano Website",
+      "icon": "globe",
+      "url": "https://fano.ai"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Documentation",
+      "pages": [
+        "docs/overview"
+      ]
+    },
+    {
+      "group": "Get Started",
+      "pages": [
+        "docs/get-started/transcribe-pre-recorded-audio",
+        "docs/get-started/transcribe-streaming-audio"
+      ]
+    },
+    {
+      "group": "Features",
+      "pages": [
+        "docs/features/keyword-biasing",
+        "docs/features/punctuation"
+      ]
+    },
+    {
+      "group": "Model and Language",
+      "pages": [
+        "docs/model-and-language/model-and-supported-language"
+      ]
+    },
+    {
+      "group": "API Reference",
+      "pages": [
+        "api-reference/introduction",
+        "api-reference/authentication"
+      ]
+    },
+    {
+      "group": "Pre-recorded Audio",
+      "pages": [
+        "api-reference/pre-recorded/transcribe"
+      ]
+    },
+    {
+      "group": "Streaming Audio",
+      "pages": [
+        "api-reference/streaming/websocket-connection"
+      ]
+    },
+    {
+      "group": "Release Notes",
+      "pages": [
+        "release-notes/overview",
+        "release-notes/changelog"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "website": "https://fano.ai",
+    "linkedin": "https://linkedin.com/company/fano-labs"
+  },
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true
+  },
+  "api": {
+    "baseUrl": "https://api.fano.ai",
+    "auth": {
+      "method": "key",
+      "name": "Authorization"
+    }
+  },
+  "openapi": "openapi.yaml"
+}

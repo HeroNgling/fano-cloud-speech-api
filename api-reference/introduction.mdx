@@ -1,0 +1,153 @@
+---
+title: 'API Reference'
+description: 'Complete API reference for the Fano Speech API'
+icon: 'code'
+---
+
+# API Reference
+
+Welcome to the Fano Speech API reference documentation. This section provides detailed information about all available endpoints, request/response formats, and authentication.
+
+## Base URL
+
+All API requests should be made to:
+
+```
+https://api.fano.ai/v1
+```
+
+## Authentication
+
+The Fano Speech API uses API keys for authentication. Include your API key in the `Authorization` header:
+
+```
+Authorization: Bearer your_api_key_here
+```
+
+<Warning>
+Keep your API keys secure! Never expose them in client-side code or public repositories.
+</Warning>
+
+## Available Endpoints
+
+### Pre-recorded Audio
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/transcribe` | Transcribe an audio file |
+| `POST` | `/transcribe/url` | Transcribe audio from URL |
+| `GET` | `/transcribe/{job_id}` | Get transcription status |
+
+### Streaming Audio
+
+| Protocol | Endpoint | Description |
+|----------|----------|-------------|
+| WebSocket | `/stream` | Real-time streaming transcription |
+
+## Request Format
+
+### Content Types
+
+- `application/json` - For JSON request bodies
+- `audio/wav` - For direct audio upload
+- `audio/mpeg` - For MP3 files
+- `multipart/form-data` - For file uploads with parameters
+
+### Common Headers
+
+| Header | Required | Description |
+|--------|----------|-------------|
+| `Authorization` | Yes | Bearer token with your API key |
+| `Content-Type` | Yes | Request content type |
+| `Accept` | No | Response format preference |
+
+## Response Format
+
+All responses are returned in JSON format:
+
+```json
+{
+  "success": true,
+  "data": {
+    "transcript": "...",
+    "confidence": 0.95
+  },
+  "metadata": {
+    "request_id": "req_abc123",
+    "processing_time_ms": 1234
+  }
+}
+```
+
+### Error Response
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_AUDIO_FORMAT",
+    "message": "The provided audio format is not supported",
+    "details": {
+      "supported_formats": ["wav", "mp3", "flac", "ogg"]
+    }
+  }
+}
+```
+
+## Rate Limits
+
+| Plan | Requests/min | Concurrent | Max Audio Length |
+|------|--------------|------------|------------------|
+| Free | 10 | 2 | 5 minutes |
+| Pro | 100 | 10 | 2 hours |
+| Enterprise | Custom | Custom | Custom |
+
+<Info>
+Rate limit information is included in response headers:
+- `X-RateLimit-Limit`: Maximum requests allowed
+- `X-RateLimit-Remaining`: Requests remaining
+- `X-RateLimit-Reset`: Time until limit resets (Unix timestamp)
+</Info>
+
+## Error Codes
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| `UNAUTHORIZED` | 401 | Invalid or missing API key |
+| `RATE_LIMITED` | 429 | Too many requests |
+| `INVALID_AUDIO_FORMAT` | 400 | Unsupported audio format |
+| `AUDIO_TOO_LONG` | 400 | Audio exceeds maximum length |
+| `PROCESSING_ERROR` | 500 | Internal processing error |
+
+## SDKs and Libraries
+
+Official SDKs are available for:
+
+<CardGroup cols={3}>
+  <Card title="Python" icon="python">
+    ```bash
+    pip install fano-speech
+    ```
+  </Card>
+  
+  <Card title="Node.js" icon="node-js">
+    ```bash
+    npm install @fano/speech-sdk
+    ```
+  </Card>
+  
+  <Card title="Java" icon="java">
+    Maven/Gradle available
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/api-reference/authentication">
+    Learn about API authentication
+  </Card>
+  <Card title="Transcribe Audio" icon="file-audio" href="/api-reference/pre-recorded/transcribe">
+    Start transcribing audio
+  </Card>
+</CardGroup>
