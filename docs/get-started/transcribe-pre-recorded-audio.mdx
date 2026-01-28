@@ -10,8 +10,23 @@ The Fano Asynchronous Speech-to-Text (STT) API allows you to transcribe longer a
 
 ## How It Works
 
-The asynchronous transcription process is a simple, two-step workflow:
+```mermaid
+sequenceDiagram
+    participant Client
+    participant API as Fano API
+    
+    Client->>API: POST /api/v1/transcript
+    API-->>Client: Returns operation_id
+    
+    loop Poll for results
+        Client->>API: GET /api/v1/transcript/{operation_id}
+        API-->>Client: Returns status (done: false/true)
+    end
+    
+    Note over Client,API: When done: true, response contains transcript
+```
 
+The asynchronous transcription process is a simple, two-step workflow:
 1. **Submit the file:** You send a `POST` request to the `/api/v1/transcript` endpoint with your audio file (as a URI or base64-encoded string) and configuration.
 2. **Get the transcript:** The API returns an `operation_id`. You can then get the transcription results by polling, in which you could periodically check a `GET` endpoint using the `operation_id` until the transcription is `done`.
 

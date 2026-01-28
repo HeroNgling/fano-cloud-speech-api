@@ -15,6 +15,27 @@ The Fano Speech API Streaming endpoint allows you to transcribe audio in real-ti
 
 ## How It Works
 
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    
+    Client->>Server: WebSocket Connect + Fano-license-key header
+    Server-->>Client: Connection Established
+    
+    Client->>Server: 1️⃣ Configuration Message
+    
+    loop Audio Streaming
+        Client->>Server: 2️⃣ Audio Chunk (Base64)
+        Server-->>Client: Transcription Result (interim)
+    end
+    
+    Server-->>Client: Transcription Result (final)
+    Client->>Server: 3️⃣ EOF Message
+    Server-->>Client: Connection Closed
+```
+
+
 ### Prerequisites
 
 - **Fano API Key:** Obtainable from the Developer Portal.
