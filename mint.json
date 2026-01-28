@@ -95,9 +95,7 @@
     },
     {
       "group": "Streaming STT",
-      "pages": [
-        "api-reference/streaming-stt/streaming-transcription"
-      ]
+      "asyncapi": "/api-reference/asyncapi-streaming-transcription.yaml"
     },
     {
       "group": "Release Note",
