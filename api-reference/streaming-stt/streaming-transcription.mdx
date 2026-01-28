@@ -346,7 +346,7 @@ ws.on('close', () => console.log('Connection closed'));
 ws.on('error', (err) => console.error('Error:', err));
 ```
   </Tab>
-  <Tab title="wscat (Test)">
+  <Tab title="cURL (Test)">
 ```bash
 # WebSocket connections cannot be tested with cURL directly.
 # Use wscat for testing:
@@ -418,4 +418,4 @@ Audio must conform to these requirements or transcription will fail.
 | `yue` | Cantonese | |
 | `cmn` | Mandarin Chinese | |
 | `en` | English | |
-| `yue-x-auto` | Multilingual | Automatic language detection for code-switching |
+| `yue-x-auto` | Cantonese | With automatic language detection for code-switching |

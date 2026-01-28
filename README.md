@@ -2,6 +2,14 @@
 
 This folder contains all the documentation files ready to be imported into Mintlify, including an **interactive API reference** powered by OpenAPI/Swagger.
 
+## ⚠️ WebSocket API Playground Note
+
+Mintlify's API playground is primarily designed for REST APIs. For the **Streaming STT WebSocket API**:
+- The `api: "WSS wss://..."` frontmatter enables WebSocket endpoint display
+- The OpenAPI spec provides schema documentation
+- Users should use the provided code examples (Python, JavaScript, wscat) to test WebSocket connections
+- Consider linking to [AsyncAPI Studio](https://studio.asyncapi.com/) for interactive WebSocket testing
+
 ## 📁 File Structure
 
 ```
@@ -19,6 +27,7 @@ fano-mintlify-docs/
 │       └── supported-languages.mdx             # Supported languages
 ├── api-reference/
 │   ├── openapi.json                            # OpenAPI 3.0 spec (Async STT)
+│   ├── openapi-streaming.yaml                  # OpenAPI 3.1 spec (Streaming STT)
 │   ├── introduction.mdx                        # API reference intro
 │   ├── authentication.mdx                      # Authentication guide
 │   ├── async-stt/

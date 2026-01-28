@@ -40,13 +40,14 @@
     }
   ],
   "openapi": [
-    "api-reference/openapi.json"
+    "api-reference/openapi.json",
+    "api-reference/openapi-streaming.yaml"
   ],
   "api": {
-    "baseUrl": "https://studio.fano.ai",
+    "baseUrl": "wss://app.fano.ai/api/v1/speech-to-text",
     "auth": {
       "method": "key",
-      "name": "Fano-License-Key"
+      "name": "Fano-license-key"
     },
     "playground": {
       "mode": "show"
