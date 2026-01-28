@@ -1,26 +1,31 @@
 # Fano Speech API Documentation - Mintlify Migration Guide
 
-This folder contains all the documentation files ready to be imported into Mintlify.
+This folder contains all the documentation files ready to be imported into Mintlify, including an **interactive API reference** powered by OpenAPI/Swagger.
 
 ## 📁 File Structure
 
 ```
 fano-mintlify-docs/
-├── mint.json                              # Main configuration file
-├── introduction.mdx                       # Overview/home page
-├── get-started/
-│   ├── transcribe-pre-recorded-audio.mdx # Async STT guide
-│   └── transcribe-streaming-audio.mdx    # Streaming STT guide
-├── features/
-│   ├── keyword-biasing.mdx               # Keyword biasing feature
-│   └── punctuation.mdx                   # Punctuation feature
-├── model-and-language/
-│   └── supported-languages.mdx           # Supported languages
+├── mint.json                                    # Main configuration file
+├── docs/
+│   ├── introduction.mdx                         # Overview/home page
+│   ├── get-started/
+│   │   ├── transcribe-pre-recorded-audio.mdx   # Async STT guide
+│   │   └── transcribe-streaming-audio.mdx      # Streaming STT guide
+│   ├── features/
+│   │   ├── keyword-biasing.mdx                 # Keyword biasing feature
+│   │   └── punctuation.mdx                     # Punctuation feature
+│   └── model-and-language/
+│       └── supported-languages.mdx             # Supported languages
 ├── api-reference/
-│   ├── introduction.mdx                  # API reference intro
-│   └── async-stt.mdx                     # Async STT endpoints
+│   ├── openapi.json                            # OpenAPI 3.0 specification
+│   ├── introduction.mdx                        # API reference intro
+│   ├── authentication.mdx                      # Authentication guide
+│   └── async-stt/
+│       ├── submit-transcription.mdx            # POST endpoint (interactive)
+│       └── get-transcription-status.mdx        # GET endpoint (interactive)
 └── release-notes/
-    └── changelog.mdx                     # Release notes/changelog
+    └── changelog.mdx                           # Release notes/changelog
 ```
 
 ## 🚀 Step-by-Step Import Procedure

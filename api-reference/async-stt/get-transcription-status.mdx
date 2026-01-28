@@ -1,0 +1,100 @@
+---
+title: 'Get Transcription Status'
+openapi: 'GET /api/v1/transcript/{operation_id}'
+---
+
+<Note>
+Poll this endpoint to check the status of your transcription job and retrieve results when complete.
+</Note>
+
+## Response States
+
+The response will be in one of three states:
+
+<AccordionGroup>
+  <Accordion title="In Progress" icon="spinner">
+    ```json
+    {
+      "name": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29",
+      "done": false,
+      "metadata": {
+        "requestTime": "2025-08-19T07:50:23.692Z",
+        "startTime": "2025-08-19T07:50:23.692Z",
+        "endTime": null
+      }
+    }
+    ```
+    **Action:** Wait and poll again (recommended: every 10 seconds)
+  </Accordion>
+  
+  <Accordion title="Completed Successfully" icon="check">
+    ```json
+    {
+      "name": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29",
+      "done": true,
+      "metadata": {...},
+      "response": {
+        "results": [...]
+      }
+    }
+    ```
+    **Action:** Process the transcript in `response.results`
+  </Accordion>
+  
+  <Accordion title="Failed" icon="xmark">
+    ```json
+    {
+      "name": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29",
+      "done": true,
+      "metadata": {...},
+      "error": {
+        "code": 400,
+        "message": "Invalid audio format"
+      }
+    }
+    ```
+    **Action:** Check the error message and resubmit with corrections
+  </Accordion>
+</AccordionGroup>
+
+## Understanding the Results
+
+When transcription is complete, the `response.results` array contains segments with:
+
+| Field | Description |
+|-------|-------------|
+| `transcript` | The transcribed text |
+| `confidence` | Confidence score (0-1) |
+| `start_time` | Segment start timestamp |
+| `end_time` | Segment end timestamp |
+| `speaker_tag` | Speaker identifier (for diarization) |
+| `language_code` | Detected language |
+| `channel_tag` | Audio channel number |
+
+## Polling Best Practices
+
+<Warning>
+**Recommended polling interval:** 10 seconds
+
+Avoid polling too frequently to prevent rate limiting.
+</Warning>
+
+```python
+import time
+
+while True:
+    result = get_results(operation_id)
+    
+    if result.get("done"):
+        if "response" in result:
+            print("Success!", result["response"])
+        else:
+            print("Error:", result.get("error"))
+        break
+    
+    time.sleep(10)  # Wait 10 seconds before next poll
+```
+
+## Alternative: Callbacks
+
+Instead of polling, you can configure a callback URL to receive results automatically when transcription completes. See the [Release Notes](/release-notes/changelog) for callback support details.

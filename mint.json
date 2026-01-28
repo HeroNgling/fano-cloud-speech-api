@@ -22,8 +22,8 @@
     }
   ],
   "topbarCtaButton": {
-    "name": "Get Started",
-    "url": "https://app.fanocloud.com"
+    "name": "Dashboard",
+    "url": "https://studio.fano.ai"
   },
   "tabs": [
     {
@@ -39,6 +39,19 @@
       "url": "release-notes"
     }
   ],
+  "openapi": [
+    "api-reference/openapi.json"
+  ],
+  "api": {
+    "baseUrl": "https://studio.fano.ai",
+    "auth": {
+      "method": "key",
+      "name": "Fano-License-Key"
+    },
+    "playground": {
+      "mode": "show"
+    }
+  },
   "navigation": [
     {
       "group": "Overview",
@@ -69,7 +82,15 @@
     {
       "group": "API Reference",
       "pages": [
-        "api-reference/async-stt"
+        "api-reference/introduction",
+        "api-reference/authentication"
+      ]
+    },
+    {
+      "group": "Async STT",
+      "pages": [
+        "api-reference/async-stt/submit-transcription",
+        "api-reference/async-stt/get-transcription-status"
       ]
     },
     {
