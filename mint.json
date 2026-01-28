@@ -5,9 +5,11 @@
     "dark": "/logo/light.svg",
     "light": "/logo/light.svg"
   },
-  "favicon": "/logo/light.svg",
+  "favicon": "/logo/fav.svg",
   "colors": {
     "primary": "#012AFF",
+    "light": "#012AFF",
+    "dark": "#012AFF",
     "anchors": {
       "from": "#0D9373",
       "to": "#07C983"
