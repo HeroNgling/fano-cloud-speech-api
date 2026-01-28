@@ -7,7 +7,7 @@ This folder contains all the documentation files ready to be imported into Mintl
 
 ## ✅ Custom WebSocket Playground Solution
 
-Since Mintlify's built-in AsyncAPI playground doesn't support authentication headers, we've created a **custom React component** (`/snippets/websocket-playground.mdx`) that provides:
+Since Mintlify's built-in AsyncAPI playground doesn't support authentication headers, we've created a **custom React component** (`/snippets/websocket-playground.jsx`) that provides:
 
 - ✅ **API Key input field** - Enter `Fano-license-key` before connecting
 - ✅ **Connect/Disconnect buttons** - Control WebSocket connection
@@ -15,6 +15,14 @@ Since Mintlify's built-in AsyncAPI playground doesn't support authentication hea
 - ✅ **Message editor** - Edit JSON messages before sending
 - ✅ **Message log** - View sent/received messages in real-time
 - ✅ **wscat command copy** - One-click copy for CLI testing
+
+### Usage in MDX
+
+```jsx
+import { WebSocketPlayground } from "/snippets/websocket-playground.jsx"
+
+<WebSocketPlayground />
+```
 
 ### Browser Limitation Note
 
@@ -67,7 +75,7 @@ fano-mintlify-docs/
 ├── mint.json                                    # Main configuration
 ├── mint.pages.json                              # Alternative config
 ├── snippets/
-│   └── websocket-playground.mdx                 # Custom WebSocket playground React component
+│   └── websocket-playground.jsx                 # Custom WebSocket playground React component
 ├── docs/
 │   ├── introduction.mdx                         # Overview/home page
 │   ├── get-started/
