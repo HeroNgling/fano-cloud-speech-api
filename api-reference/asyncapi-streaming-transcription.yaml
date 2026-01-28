@@ -167,7 +167,7 @@ components:
 
     EOF:
       name: EOF
-      title: End of File Message
+      title: Terminate the session
       summary: Signal end of audio stream to close session
       contentType: application/json
       payload:
