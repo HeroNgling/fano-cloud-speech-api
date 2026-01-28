@@ -1,0 +1,354 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "title": "Fano Streaming Transcription",
+    "version": "1.0.0",
+    "description": "Real-time speech-to-text transcription over WebSocket"
+  },
+  "servers": {
+    "production": {
+      "host": "app.fano.ai",
+      "pathname": "/api/v1/speech-to-text/streaming-transcript",
+      "protocol": "wss",
+      "description": "Production WebSocket Server"
+    }
+  },
+  "channels": {
+    "streamingTranscript": {
+      "address": "/api/v1/speech-to-text/streaming-transcript",
+      "messages": {
+        "configure": {
+          "$ref": "#/components/messages/Configure"
+        },
+        "audioChunk": {
+          "$ref": "#/components/messages/AudioChunk"
+        },
+        "eof": {
+          "$ref": "#/components/messages/EOF"
+        },
+        "transcriptionResult": {
+          "$ref": "#/components/messages/TranscriptionResult"
+        },
+        "error": {
+          "$ref": "#/components/messages/Error"
+        }
+      }
+    }
+  },
+  "operations": {
+    "sendConfigure": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/streamingTranscript"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/streamingTranscript/messages/configure"
+        }
+      ]
+    },
+    "sendAudio": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/streamingTranscript"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/streamingTranscript/messages/audioChunk"
+        }
+      ]
+    },
+    "sendEOF": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/streamingTranscript"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/streamingTranscript/messages/eof"
+        }
+      ]
+    },
+    "receiveResult": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/streamingTranscript"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/streamingTranscript/messages/transcriptionResult"
+        },
+        {
+          "$ref": "#/channels/streamingTranscript/messages/error"
+        }
+      ]
+    }
+  },
+  "components": {
+    "messages": {
+      "Configure": {
+        "name": "Configure",
+        "title": "Configuration Message",
+        "summary": "Initialize the transcription session",
+        "contentType": "application/json",
+        "payload": {
+          "type": "object",
+          "required": [
+            "config"
+          ],
+          "properties": {
+            "config": {
+              "type": "object",
+              "required": [
+                "languageCode",
+                "sampleRateHertz",
+                "encoding"
+              ],
+              "properties": {
+                "languageCode": {
+                  "type": "string",
+                  "description": "Language code: yue, cmn, en, yue-x-auto",
+                  "enum": [
+                    "yue",
+                    "cmn",
+                    "en",
+                    "yue-x-auto"
+                  ],
+                  "examples": [
+                    "yue-x-auto"
+                  ]
+                },
+                "sampleRateHertz": {
+                  "type": "integer",
+                  "description": "Sample rate (8000-48000, optimal 16000)",
+                  "minimum": 8000,
+                  "maximum": 48000,
+                  "examples": [
+                    16000
+                  ]
+                },
+                "encoding": {
+                  "type": "string",
+                  "description": "Audio encoding format",
+                  "enum": [
+                    "LINEAR16",
+                    "MULAW"
+                  ],
+                  "examples": [
+                    "LINEAR16"
+                  ]
+                },
+                "enableAutomaticPunctuation": {
+                  "type": "boolean",
+                  "description": "Add punctuation to results",
+                  "default": false
+                },
+                "interimResults": {
+                  "type": "boolean",
+                  "description": "Return interim results",
+                  "default": false
+                },
+                "speechContexts": {
+                  "type": "object",
+                  "properties": {
+                    "keywords": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Keywords for biasing (max 1000)"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "examples": [
+            {
+              "config": {
+                "languageCode": "yue-x-auto",
+                "sampleRateHertz": 16000,
+                "encoding": "LINEAR16",
+                "enableAutomaticPunctuation": true,
+                "interimResults": true
+              }
+            }
+          ]
+        }
+      },
+      "AudioChunk": {
+        "name": "AudioChunk",
+        "title": "Audio Chunk Message",
+        "summary": "Send audio data for transcription",
+        "contentType": "application/json",
+        "payload": {
+          "type": "object",
+          "required": [
+            "audioContent"
+          ],
+          "properties": {
+            "audioContent": {
+              "type": "string",
+              "format": "byte",
+              "description": "Base64-encoded audio data (100-500ms chunks recommended)"
+            }
+          },
+          "examples": [
+            {
+              "audioContent": "UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9..."
+            }
+          ]
+        }
+      },
+      "EOF": {
+        "name": "EOF",
+        "title": "End of File Message",
+        "summary": "Signal end of audio stream",
+        "contentType": "application/json",
+        "payload": {
+          "type": "object",
+          "required": [
+            "eof"
+          ],
+          "properties": {
+            "eof": {
+              "type": "boolean",
+              "const": true,
+              "description": "Set to true to end the session"
+            }
+          },
+          "examples": [
+            {
+              "eof": true
+            }
+          ]
+        }
+      },
+      "TranscriptionResult": {
+        "name": "TranscriptionResult",
+        "title": "Transcription Result",
+        "summary": "Real-time transcription result from server",
+        "contentType": "application/json",
+        "payload": {
+          "type": "object",
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "alternatives": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "transcript": {
+                          "type": "string",
+                          "description": "Transcribed text"
+                        },
+                        "confidence": {
+                          "type": "number",
+                          "description": "Confidence score (0.0-1.0)"
+                        },
+                        "startTime": {
+                          "type": "string",
+                          "description": "Start time"
+                        },
+                        "endTime": {
+                          "type": "string",
+                          "description": "End time"
+                        },
+                        "languageCode": {
+                          "type": "string",
+                          "description": "Detected language"
+                        }
+                      }
+                    }
+                  },
+                  "isFinal": {
+                    "type": "boolean",
+                    "description": "true = final result, false = interim"
+                  },
+                  "channelTag": {
+                    "type": "integer"
+                  },
+                  "resultEndTime": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "asrModels": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "examples": [
+            {
+              "results": [
+                {
+                  "alternatives": [
+                    {
+                      "transcript": "Hello, how can I help you?",
+                      "confidence": 0.95,
+                      "startTime": "0.000s",
+                      "endTime": "2.500s",
+                      "languageCode": "en"
+                    }
+                  ],
+                  "isFinal": true,
+                  "channelTag": 1,
+                  "resultEndTime": "2.500s"
+                }
+              ],
+              "metadata": {
+                "asrModels": [
+                  "model_1"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "Error": {
+        "name": "Error",
+        "title": "Error Message",
+        "summary": "Error response from server",
+        "contentType": "application/json",
+        "payload": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "description": "gRPC status code"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "Error message"
+                }
+              }
+            }
+          },
+          "examples": [
+            {
+              "error": {
+                "code": 3,
+                "message": "invalid message format"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
