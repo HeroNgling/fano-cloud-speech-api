@@ -40,8 +40,7 @@
     }
   ],
   "openapi": [
-    "api-reference/openapi.json",
-    "api-reference/openapi-streaming.yaml"
+    "api-reference/openapi.json"
   ],
   "api": {
     "baseUrl": "https://studio.fano.ai",
@@ -97,11 +96,7 @@
     {
       "group": "Streaming STT",
       "pages": [
-        "api-reference/streaming-stt/overview",
-        "api-reference/streaming-stt/configure-stream",
-        "api-reference/streaming-stt/send-audio-chunk",
-        "api-reference/streaming-stt/receive-results",
-        "api-reference/streaming-stt/send-eof"
+        "api-reference/streaming-stt/streaming-transcription"
       ]
     },
     {
