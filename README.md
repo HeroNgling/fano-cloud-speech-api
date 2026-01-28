@@ -2,20 +2,25 @@
 
 This folder contains all the documentation files ready to be imported into Mintlify, including:
 - **Interactive REST API playground** powered by OpenAPI/Swagger
-- **Interactive WebSocket playground** powered by AsyncAPI 3.0
+- **Custom WebSocket playground** with authentication field (React component)
+- **WebSocket API documentation** powered by AsyncAPI 3.0
 
-## ✅ WebSocket Playground Support
+## ✅ Custom WebSocket Playground Solution
 
-Mintlify **natively supports WebSocket playground** via AsyncAPI 3.0+. The Streaming STT API includes:
-- **Connect** button to establish WebSocket connection
-- **Send** button to send messages (Configure, Audio, EOF)
-- **Receive** panel showing real-time transcription results
-- **Schema documentation** auto-generated from AsyncAPI spec
-- **Multiple server URLs** support (dropdown)
+Since Mintlify's built-in AsyncAPI playground doesn't support authentication headers, we've created a **custom React component** (`/snippets/websocket-playground.mdx`) that provides:
 
-See Mintlify's demo: https://www.mintlify.com/docs/api-playground/asyncapi/playground
+- ✅ **API Key input field** - Enter `Fano-license-key` before connecting
+- ✅ **Connect/Disconnect buttons** - Control WebSocket connection
+- ✅ **Message templates** - Pre-built Config, Audio, EOF templates
+- ✅ **Message editor** - Edit JSON messages before sending
+- ✅ **Message log** - View sent/received messages in real-time
+- ✅ **wscat command copy** - One-click copy for CLI testing
 
-## 🔧 WebSocket Configuration
+### Browser Limitation Note
+
+Browser WebSocket API cannot send custom headers during handshake. The playground includes a "Copy wscat command" button for actual testing with authentication.
+
+## 🔧 Configuration
 
 The WebSocket playground uses **AsyncAPI 3.0** specification. Configuration in `mint.json`:
 
@@ -59,8 +64,10 @@ Check console for AsyncAPI parsing errors.
 
 ```
 fano-mintlify-docs/
-├── mint.json                                    # Main config (AsyncAPI auto-generate approach)
-├── mint.pages.json                              # Alternative config (MDX frontmatter approach)
+├── mint.json                                    # Main configuration
+├── mint.pages.json                              # Alternative config
+├── snippets/
+│   └── websocket-playground.mdx                 # Custom WebSocket playground React component
 ├── docs/
 │   ├── introduction.mdx                         # Overview/home page
 │   ├── get-started/
@@ -80,7 +87,7 @@ fano-mintlify-docs/
 │   │   ├── submit-transcription.mdx            # POST endpoint (REST playground)
 │   │   └── get-transcription-status.mdx        # GET endpoint (REST playground)
 │   └── streaming-stt/
-│       └── streaming-transcription.mdx         # WebSocket API (MDX with asyncapi frontmatter)
+│       └── streaming-transcription.mdx         # WebSocket API + Custom Playground
 └── release-notes/
     └── changelog.mdx                           # Release notes/changelog
 ```
