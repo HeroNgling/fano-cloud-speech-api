@@ -10,12 +10,17 @@ servers:
     pathname: /api/v1/speech-to-text/streaming-transcript
     protocol: wss
     description: Production WebSocket Server
+    # Apply security globally to the server
+    security:
+      - licenseKey: []
 
 channels:
   transcription:
     address: /api/v1/speech-to-text/streaming-transcript
     bindings:
       ws:
+        # Note: Browsers generally don't support custom headers in the standard WebSocket API.
+        # However, for Mintlify's playground to show the input, it must be in securitySchemes.
         headers:
           type: object
           required:
@@ -24,8 +29,6 @@ channels:
             Fano-license-key:
               type: string
               description: Your Fano API license key for authentication
-              examples:
-                - "your-api-key-here"
     messages:
       configure:
         $ref: '#/components/messages/Configure'
@@ -39,7 +42,6 @@ channels:
         $ref: '#/components/messages/Error'
 
 operations:
-  # Client SENDS these messages (server receives)
   sendConfig:
     action: receive
     channel:
@@ -67,7 +69,6 @@ operations:
     messages:
       - $ref: '#/channels/transcription/messages/eof'
 
-  # Client RECEIVES these messages (server sends)
   receiveResult:
     action: send
     channel:
@@ -87,6 +88,14 @@ operations:
       - $ref: '#/channels/transcription/messages/error'
 
 components:
+  # This section tells Mintlify to show an Auth field in the playground
+  securitySchemes:
+    licenseKey:
+      type: httpApiKey
+      name: Fano-license-key
+      in: header
+      description: Enter your Fano API license key.
+
   messages:
     Configure:
       name: Configure
