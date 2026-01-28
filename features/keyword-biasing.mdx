@@ -1,0 +1,65 @@
+---
+title: 'Keyword Biasing'
+description: 'Boost recognition accuracy for domain-specific terminology'
+icon: 'bullseye'
+---
+
+## Overview
+
+Keyword Biasing allows you to improve transcription accuracy for domain-specific terminology. By passing a list of keywords (e.g., banking products, medical terms, or proper names) in the API request, the model will prioritize these terms during transcription.
+
+This feature is particularly useful for:
+
+- **Brand names** and product names
+- **Industry jargon** and technical terms
+- **Proper names** of people, places, or organizations
+- **Acronyms** and abbreviations specific to your domain
+
+## Supported APIs
+
+<CardGroup cols={2}>
+  <Card title="Async STT" icon="check" color="#0D9373">
+    Supported
+  </Card>
+  <Card title="Streaming STT" icon="check" color="#0D9373">
+    Supported
+  </Card>
+</CardGroup>
+
+## Enable Feature
+
+To enable keyword biasing, include the `speechContexts` parameter in your request configuration.
+
+**Example Configuration:**
+
+```json
+{
+  "config": {
+    "languageCode": "yue-x-auto",
+    "encoding": "LINEAR16",
+    "enableAutomaticPunctuation": true,
+    "speechContexts": [
+      {
+        "phrases": ["Fano Labs", "Callinter", "speech analytics"]
+      }
+    ]
+  },
+  "audio": {
+    "uri": "{audio_uri}"
+  }
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Keep the keyword list focused">
+    Include only the most important terms specific to your domain. Too many keywords may reduce the effectiveness of the feature.
+  </Accordion>
+  <Accordion title="Use exact spellings">
+    Provide keywords exactly as you want them to appear in the transcript, including proper capitalization.
+  </Accordion>
+  <Accordion title="Include variations">
+    If a term has common variations or abbreviations, include all versions in your keyword list.
+  </Accordion>
+</AccordionGroup>

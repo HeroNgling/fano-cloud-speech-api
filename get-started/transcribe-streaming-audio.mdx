@@ -1,0 +1,262 @@
+---
+title: 'Transcribe Streaming Audio'
+description: 'Learn how to transcribe audio in real-time with low latency'
+icon: 'signal-stream'
+---
+
+## Overview
+
+The Fano Speech API Streaming endpoint allows you to transcribe audio in real-time with low latency.
+
+**Common Use Cases:**
+
+- **Live Agent Assist:** Transcribe contact center calls in real-time to trigger compliance alerts.
+- **Meeting Transcription:** Live notetaking for Cantonese, Mandarin, and English meetings.
+
+## How It Works
+
+### Prerequisites
+
+- **Fano API Key:** Obtainable from the Developer Portal.
+
+### Connection Protocol
+
+We use **Secure WebSockets (WSS)** for streaming. This allows for a persistent, bi-directional connection where you stream audio chunks and receive JSON transcription events asynchronously.
+
+**Base URL:**
+
+```
+wss://app.fano.ai/api/v1/speech-to-text/streaming-transcript
+```
+
+### Example Code
+
+<CodeGroup>
+
+```python Python
+import asyncio
+import websockets
+import json
+import pyaudio
+
+# CONFIGURATION
+API_KEY = 'YOUR_FANO_API_KEY'
+URL = "wss://app.fano.ai/api/v1/speech-to-text/streaming-transcript"
+
+async def stream_audio():
+    # 1. Configure the connection
+    headers = {"Authorization": f"Bearer {API_KEY}"}
+    
+    # Initial Configuration Message
+    config_msg = {
+        "type": "Configure",
+        "config": {
+            "languageCode": "yue-x-auto", 
+            "sampleRateHertz": 16000,
+            "encoding": "LINEAR16",
+            "enablePunctuation": True,
+            "interimResult": True 
+        }
+    }
+
+    async with websockets.connect(URL, extra_headers=headers) as ws:
+        # 2. Send Configuration
+        await ws.send(json.dumps(config_msg))
+        print("Connected to Fano Streaming API...")
+
+        # 3. Setup Microphone Stream (PyAudio)
+        p = pyaudio.PyAudio()
+        stream = p.open(
+            format=pyaudio.paInt16, 
+            channels=1, 
+            rate=16000, 
+            input=True, 
+            frames_per_buffer=3200
+        )
+
+        async def send_audio():
+            while True:
+                data = stream.read(3200, exception_on_overflow=False)
+                await ws.send(data)
+                await asyncio.sleep(0.01)
+
+        async def receive_transcripts():
+            async for message in ws:
+                response = json.loads(message)
+                if response.get("isFinal"):
+                    print(f"Final: {response['alternatives'][0]['transcript']}")
+                else:
+                    print(f"Interim: {response['alternatives'][0]['transcript']}", end="\r")
+
+        # Run send and receive loops concurrently
+        await asyncio.gather(send_audio(), receive_transcripts())
+
+# Run the client
+asyncio.run(stream_audio())
+```
+
+```javascript JavaScript
+const WebSocket = require('ws');
+const record = require('node-record-lpcm16');
+
+// CONFIGURATION
+const API_KEY = 'YOUR_FANO_API_KEY';
+const URL = 'wss://app.fano.ai/api/v1/speech-to-text/streaming-transcript';
+
+const ws = new WebSocket(URL, {
+  headers: { Authorization: `Bearer ${API_KEY}` }
+});
+
+ws.on('open', function open() {
+  console.log('Connected to Fano Streaming API...');
+
+  // 1. Send Configuration
+  const configMsg = {
+    type: 'Configure',
+    config: {
+      languageCode: 'yue-x-auto',
+      sampleRateHertz: 16000,
+      encoding: 'LINEAR16',
+      enablePunctuation: true,
+      interimResult: true
+    }
+  };
+  ws.send(JSON.stringify(configMsg));
+
+  // 2. Start Microphone Stream
+  record
+    .start({
+      sampleRate: 16000,
+      channels: 1,
+      verbose: false,
+      recordProgram: 'rec'
+    })
+    .pipe(ws);
+});
+
+ws.on('message', function incoming(data) {
+  const response = JSON.parse(data);
+  
+  if (response.alternatives && response.alternatives[0]) {
+    const transcript = response.alternatives[0].transcript;
+    
+    if (response.isFinal) {
+      console.log(`Final: ${transcript}`);
+    } else {
+      process.stdout.write(`Interim: ${transcript}\r`);
+    }
+  }
+});
+
+ws.on('close', () => {
+  console.log('Connection closed');
+  record.stop();
+});
+
+ws.on('error', (error) => {
+  console.error('WebSocket Error:', error);
+});
+```
+
+</CodeGroup>
+
+## Quick Start
+
+### Step 1: Authentication
+
+Authentication is handled via the `Fano-license-key` header during the WebSocket handshake.
+
+| Header | Value | Description |
+|--------|-------|-------------|
+| `Fano-license-key` | `YOUR_API_KEY` | Your unique license key provided by Fano Labs. |
+
+### Step 2: Connection Workflow
+
+The streaming session follows a strict lifecycle:
+
+<Steps>
+  <Step title="Establish Connection">
+    Connect to the WebSocket endpoint:
+    ```
+    wss://app.fano.ai/api/v1/speech-to-text/streaming-transcript
+    ```
+  </Step>
+  <Step title="Send Configuration (Publish Event)">
+    Immediately after connecting, send the configuration event to initialize the session.
+
+    ```json
+    {
+      "config": {
+        "languageCode": "yue-x-auto",
+        "sampleRateHertz": 16000,
+        "encoding": "LINEAR16"
+      }
+    }
+    ```
+  </Step>
+  <Step title="Send Audio Chunks">
+    Audio must be chunked (recommended 100ms - 500ms size), Base64 encoded, and wrapped in a JSON object.
+
+    ```json
+    {
+      "audioContent": "<BASE64_ENCODED_AUDIO_STRING>"
+    }
+    ```
+  </Step>
+  <Step title="Receive Real-Time Results">
+    The server will push JSON messages containing partial or final transcripts.
+
+    ```json
+    {
+      "results": [
+        {
+          "alternatives": [
+            {
+              "transcript": "Hello, how can I help you today?",
+              "confidence": 0.95,
+              "startTime": "0.000s",
+              "endTime": "3.200s",
+              "languageCode": "en"
+            }
+          ],
+          "resultEndTime": "0.031s",
+          "channelTag": 1,
+          "isFinal": false
+        }
+      ],
+      "metadata": {
+        "asrModels": ["model_1", "model_2"]
+      }
+    }
+    ```
+
+    <Note>
+    `isFinal: false` indicates an interim result (can change). `isFinal: true` indicates the sentence is committed.
+    </Note>
+  </Step>
+  <Step title="Send EOF">
+    When the stream is finished, send the stop event to close the session gracefully.
+
+    ```json
+    {
+      "eof": true
+    }
+    ```
+  </Step>
+</Steps>
+
+## Error Handling
+
+| Error Code | Description | Troubleshooting |
+|------------|-------------|-----------------|
+| `401` | Unauthorized | Check your `Fano-license-key`. |
+| `400` | Bad Request | Check your JSON format or Base64 encoding. |
+
+## Audio Requirements
+
+The audio format must conform to the following requirements:
+
+<Warning>
+1. Only support raw audio with the encoding of **MULAW** and **LINEAR16**
+2. Only support single channel streaming for one connection
+</Warning>

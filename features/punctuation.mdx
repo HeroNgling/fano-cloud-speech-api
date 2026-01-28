@@ -1,0 +1,48 @@
+---
+title: 'Punctuation'
+description: 'Enable automatic punctuation in your transcripts'
+icon: 'text'
+---
+
+## Overview
+
+Automatic punctuation makes your transcripts immediately readable and ready for downstream applications. When enabled, the API intelligently adds punctuation marks to the transcribed text.
+
+## Supported APIs
+
+<CardGroup cols={2}>
+  <Card title="Async STT" icon="check" color="#0D9373">
+    Supported
+  </Card>
+  <Card title="Streaming STT" icon="check" color="#0D9373">
+    Supported
+  </Card>
+</CardGroup>
+
+## Enable Feature
+
+By default, `enableAutomaticPunctuation` is set to `false`. You can enable the feature based on your preference.
+
+**Example Configuration:**
+
+```json
+{
+  "config": {
+    "languageCode": "yue",
+    "encoding": "LINEAR16",
+    "enableAutomaticPunctuation": true
+  }
+}
+```
+
+## Results
+
+Once applied, punctuation will appear in the transcript automatically.
+
+| Source | Before Punctuation | After Punctuation |
+|--------|-------------------|-------------------|
+| 誒你可唔可以講廣東話㗎 | 誒你可唔可以講廣東話㗎 | 誒，你可唔可以講廣東話㗎？ |
+
+<Note>
+Punctuation is applied intelligently based on the context and language of the speech, supporting Cantonese, Mandarin, and English.
+</Note>

@@ -1,0 +1,46 @@
+---
+title: 'Model & Supported Languages'
+description: 'View all available language models and their capabilities'
+icon: 'globe'
+---
+
+## Models & Supported Languages
+
+When you transcribe audio, you need to set the `languageCode` in your `config` to one of the following values:
+
+| Language Code | Language | Description |
+|---------------|----------|-------------|
+| `yue` | Cantonese | Optimized for Cantonese speech |
+| `cmn` | Mandarin | Optimized for Mandarin Chinese speech |
+| `en` | English | Optimized for English speech |
+| `yue-x-auto` | Multilingual | Cantonese, Mandarin, and English with automatic language detection |
+
+## Choosing the Right Model
+
+<AccordionGroup>
+  <Accordion title="Single Language Audio" icon="microphone">
+    If your audio contains only one language, use the specific language code (`yue`, `cmn`, or `en`) for best accuracy.
+  </Accordion>
+  <Accordion title="Mixed Language Audio" icon="language">
+    For audio with code-switching between Cantonese, Mandarin, and English, use `yue-x-auto`. This model seamlessly handles multilingual conversations common in Hong Kong and Singapore.
+  </Accordion>
+</AccordionGroup>
+
+## Example Configuration
+
+```json
+{
+  "config": {
+    "languageCode": "yue-x-auto",
+    "encoding": "LINEAR16",
+    "enableAutomaticPunctuation": true
+  },
+  "audio": {
+    "uri": "https://example.com/audio.wav"
+  }
+}
+```
+
+<Tip>
+The `yue-x-auto` model is recommended for most use cases in Hong Kong and Singapore, where code-switching between languages is common.
+</Tip>

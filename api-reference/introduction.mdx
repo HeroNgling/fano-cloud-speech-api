@@ -1,0 +1,52 @@
+---
+title: 'API Reference'
+description: 'Complete reference for the Fano Speech API endpoints'
+icon: 'code'
+---
+
+## Base URL
+
+All API requests should be made to:
+
+```
+https://studio.fano.ai
+```
+
+## Authentication
+
+All requests to the Fano Speech API must be authenticated using your license key. Include the key in the request header:
+
+| Header | Value |
+|--------|-------|
+| `Fano-License-Key` | `YOUR_API_KEY` |
+
+<Warning>
+Keep your API key secure. Do not share it publicly or commit it to version control.
+</Warning>
+
+## Available Endpoints
+
+<CardGroup cols={2}>
+  <Card
+    title="Async STT"
+    icon="file-audio"
+    href="/api-reference/async-stt"
+  >
+    Submit audio files for asynchronous transcription and retrieve results.
+  </Card>
+  <Card
+    title="Streaming STT"
+    icon="signal-stream"
+    href="/get-started/transcribe-streaming-audio"
+  >
+    Real-time transcription via WebSocket connection.
+  </Card>
+</CardGroup>
+
+## Response Format
+
+All API responses are returned in JSON format. Successful responses will contain the requested data, while error responses will include an error code and message.
+
+## Rate Limits
+
+Please contact Fano Labs for information about rate limits specific to your subscription plan.

@@ -1,0 +1,54 @@
+---
+title: 'Changelog'
+description: 'New updates and improvements to the Fano Speech API'
+icon: 'clock-rotate-left'
+---
+
+## December 2025
+
+### ⭐ New Feature
+
+#### Streaming Speech-to-Text API Released
+
+You can now transcribe audio in real-time. This low-latency capability is perfect for live captioning, voice agents, and immediate command recognition:
+
+<CardGroup cols={1}>
+  <Card title="Seamless Multilingual Support" icon="language">
+    The model supports complex code-switching between Cantonese, Mandarin, and English within a single audio stream, eliminating the need to manually switch language codes.
+  </Card>
+  <Card title="Keyword Biasing" icon="bullseye">
+    You can now provide a list of specific words (such as brand names or industry jargon) to boost recognition accuracy for your domain.
+  </Card>
+  <Card title="Automatic Punctuation" icon="text">
+    Transcripts now include intelligent punctuation, making the output immediately readable and ready for downstream applications.
+  </Card>
+</CardGroup>
+
+### 🎨 Enhancement
+
+#### Callback is Available in Async STT
+
+We have added callback support for asynchronous STT. Instead of polling the server repeatedly to check job status, the API can now notify your system immediately via callback when the transcription is complete.
+
+---
+
+## November 2025
+
+### ⭐ New Feature
+
+#### Async Speech-to-Text API Released
+
+<AccordionGroup>
+  <Accordion title="Core Language Support" icon="microphone">
+    We have deployed three new high-accuracy monolingual models optimized for English, Mandarin, and Cantonese. These models provide superior transcription accuracy for single-language audio sources.
+  </Accordion>
+  <Accordion title="Multilingual ASR Model Released" icon="globe">
+    Introducing `yue-x-auto`, a specialized multilingual model designed for the complex linguistic landscape of Hong Kong and Singapore. This model supports seamless code-switching, accurately transcribing sentences that mix Mandarin, Cantonese, and English without requiring manual language tags.
+  </Accordion>
+  <Accordion title="Default Speaker Diarization" icon="users">
+    Speaker diarization is now a native feature of the Async API. The system can automatically identify and label up to 8 distinct speakers within a single audio. This is optimized for multi-speaker scenarios such as call center logs, board meetings, and interview transcripts.
+  </Accordion>
+  <Accordion title="Keyword Biasing Features" icon="bullseye">
+    You can now improve transcription accuracy for domain-specific terminology. By passing a list of keywords (e.g., banking products, medical terms, or proper names) in the API request, the model will prioritize these terms during transcription.
+  </Accordion>
+</AccordionGroup>

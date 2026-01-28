@@ -1,0 +1,93 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Fano Speech API",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373",
+    "anchors": {
+      "from": "#0D9373",
+      "to": "#07C983"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Support",
+      "url": "mailto:support@fano.ai"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Dashboard",
+    "url": "https://studio.fano.ai"
+  },
+  "tabs": [
+    {
+      "name": "Documentation",
+      "url": "/"
+    },
+    {
+      "name": "API Reference",
+      "url": "api-reference"
+    },
+    {
+      "name": "Release Notes",
+      "url": "release-notes"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "API Reference",
+      "icon": "rectangle-terminal",
+      "url": "api-reference"
+    },
+    {
+      "name": "Release Notes",
+      "icon": "lightbulb",
+      "url": "release-notes"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Overview",
+      "pages": ["introduction"]
+    },
+    {
+      "group": "Get Started",
+      "pages": [
+        "get-started/transcribe-pre-recorded-audio",
+        "get-started/transcribe-streaming-audio"
+      ]
+    },
+    {
+      "group": "Features",
+      "pages": [
+        "features/keyword-biasing",
+        "features/punctuation"
+      ]
+    },
+    {
+      "group": "Model & Language",
+      "pages": ["model-and-language/supported-languages"]
+    },
+    {
+      "group": "API Reference",
+      "pages": [
+        "api-reference/introduction",
+        "api-reference/async-stt"
+      ]
+    },
+    {
+      "group": "Release Notes",
+      "pages": ["release-notes/changelog"]
+    }
+  ],
+  "footerSocials": {
+    "website": "https://fano.ai",
+    "linkedin": "https://www.linkedin.com/company/fanolabs"
+  }
+}
