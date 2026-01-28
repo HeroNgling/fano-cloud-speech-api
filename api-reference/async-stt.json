@@ -1,0 +1,470 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Fano Speech API",
+    "description": "The Fano Speech API provides accurate and efficient speech recognition capabilities with advanced features including multilingual support, speaker diarization, and real-time transcription.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Fano Labs Support",
+      "url": "https://fano.ai",
+      "email": "support@fano.ai"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://studio.fano.ai",
+      "description": "Production Server"
+    }
+  ],
+  "security": [
+    {
+      "FanoLicenseKey": []
+    }
+  ],
+  "paths": {
+    "/api/v1/transcript": {
+      "post": {
+        "operationId": "submitTranscription",
+        "summary": "Submit audio for transcription",
+        "description": "Submit an audio file for asynchronous transcription. Send your audio file (as base64 `content` or a public `uri`) and configuration. The API will validate the request and return an `Operation` object with a unique `name` (the operation ID). Use this ID with the `GET /api/v1/transcript/{operation_id}` endpoint to check the job's status and retrieve the results.",
+        "tags": ["Async STT"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranscriptionRequest"
+              },
+              "examples": {
+                "uri_example": {
+                  "summary": "Using audio URI",
+                  "value": {
+                    "config": {
+                      "languageCode": "yue-x-auto",
+                      "encoding": "LINEAR16",
+                      "enableAutomaticPunctuation": true
+                    },
+                    "audio": {
+                      "uri": "https://example.com/audio.wav"
+                    }
+                  }
+                },
+                "base64_example": {
+                  "summary": "Using base64 content",
+                  "value": {
+                    "config": {
+                      "languageCode": "en",
+                      "encoding": "LINEAR16",
+                      "enableAutomaticPunctuation": true
+                    },
+                    "audio": {
+                      "content": "UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA..."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Accepted. The transcription job has been successfully queued.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationResponse"
+                },
+                "example": {
+                  "name": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29",
+                  "done": false,
+                  "metadata": {
+                    "requestTime": "2025-08-19T07:50:23.692Z",
+                    "startTime": null,
+                    "endTime": null
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Invalid request body or parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Invalid or missing API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transcript/{operation_id}": {
+      "get": {
+        "operationId": "getTranscriptionStatus",
+        "summary": "Get transcription status or results",
+        "description": "Poll this endpoint to check the status of a transcription job.\n\n- If `done: false`, the job is still in progress.\n- If `done: true` and an `error` object is present, the job failed.\n- If `done: true` and a `response` object is present, the job succeeded and results are available.",
+        "tags": ["Async STT"],
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "description": "The unique ID of the operation to check. This is the `name` field returned from the `POST /api/v1/transcript` request.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK. Returns the current status or final result of the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationResultResponse"
+                },
+                "examples": {
+                  "in_progress": {
+                    "summary": "Job in progress",
+                    "value": {
+                      "name": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29",
+                      "done": false,
+                      "metadata": {
+                        "requestTime": "2025-08-19T07:50:23.692Z",
+                        "startTime": "2025-08-19T07:50:23.692Z",
+                        "endTime": null
+                      }
+                    }
+                  },
+                  "completed": {
+                    "summary": "Job completed",
+                    "value": {
+                      "name": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29",
+                      "done": true,
+                      "metadata": {
+                        "requestTime": "2025-08-19T07:50:23.692Z",
+                        "startTime": "2025-08-19T07:50:23.692Z",
+                        "endTime": "2025-08-19T07:54:06.028Z"
+                      },
+                      "response": {
+                        "results": [
+                          {
+                            "alternatives": [
+                              {
+                                "transcript": "hello, how can i help you?",
+                                "confidence": 0.9227743,
+                                "start_time": "1.200000048s",
+                                "end_time": "1.600000024s",
+                                "speaker_tag": "1",
+                                "language_code": "en"
+                              }
+                            ],
+                            "channel_tag": 1
+                          },
+                          {
+                            "alternatives": [
+                              {
+                                "transcript": "wait a min, i need to check with my account status",
+                                "confidence": 0.9464005,
+                                "start_time": "3.960000038s",
+                                "end_time": "5.719999790s",
+                                "speaker_tag": "2",
+                                "language_code": "en"
+                              }
+                            ],
+                            "channel_tag": 1
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Invalid or missing API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found. The specified operation_id does not exist or has expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "FanoLicenseKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Fano-License-Key",
+        "description": "Your unique API key for authentication. Provide this key in the `Fano-License-Key` header with every request."
+      }
+    },
+    "schemas": {
+      "TranscriptionRequest": {
+        "type": "object",
+        "required": ["config", "audio"],
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/TranscriptionConfig"
+          },
+          "audio": {
+            "$ref": "#/components/schemas/AudioInput"
+          }
+        }
+      },
+      "TranscriptionConfig": {
+        "type": "object",
+        "required": ["languageCode", "encoding"],
+        "properties": {
+          "languageCode": {
+            "type": "string",
+            "description": "The language code for transcription.",
+            "enum": ["yue", "cmn", "en", "yue-x-auto"],
+            "example": "yue-x-auto"
+          },
+          "encoding": {
+            "type": "string",
+            "description": "Audio encoding format.",
+            "enum": ["LINEAR16", "MULAW", "MP3", "FLAC", "OGG_OPUS", "AAC"],
+            "example": "LINEAR16"
+          },
+          "enableAutomaticPunctuation": {
+            "type": "boolean",
+            "description": "Enable automatic punctuation in the transcript.",
+            "default": false,
+            "example": true
+          },
+          "speechContexts": {
+            "type": "array",
+            "description": "Speech contexts for keyword biasing.",
+            "items": {
+              "$ref": "#/components/schemas/SpeechContext"
+            }
+          }
+        }
+      },
+      "SpeechContext": {
+        "type": "object",
+        "properties": {
+          "phrases": {
+            "type": "array",
+            "description": "List of keywords or phrases to boost recognition accuracy.",
+            "items": {
+              "type": "string"
+            },
+            "example": ["Fano Labs", "Callinter", "speech analytics"]
+          }
+        }
+      },
+      "AudioInput": {
+        "type": "object",
+        "description": "Audio data to transcribe. You must provide exactly one of `content` or `uri`.",
+        "properties": {
+          "uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "Public URL of the audio file to transcribe.",
+            "example": "https://example.com/audio.wav"
+          },
+          "content": {
+            "type": "string",
+            "format": "byte",
+            "description": "Base64-encoded audio content."
+          }
+        }
+      },
+      "OperationResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique operation ID for this transcription job.",
+            "example": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29"
+          },
+          "done": {
+            "type": "boolean",
+            "description": "Whether the transcription job is complete.",
+            "example": false
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/OperationMetadata"
+          }
+        }
+      },
+      "OperationResultResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique operation ID for this transcription job.",
+            "example": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29"
+          },
+          "done": {
+            "type": "boolean",
+            "description": "Whether the transcription job is complete.",
+            "example": true
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/OperationMetadata"
+          },
+          "response": {
+            "$ref": "#/components/schemas/TranscriptionResult"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetails"
+          }
+        }
+      },
+      "OperationMetadata": {
+        "type": "object",
+        "properties": {
+          "requestTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp when the request was received.",
+            "example": "2025-08-19T07:50:23.692Z"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "ISO 8601 timestamp when processing started.",
+            "example": "2025-08-19T07:50:23.692Z"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "ISO 8601 timestamp when processing completed.",
+            "example": "2025-08-19T07:54:06.028Z"
+          }
+        }
+      },
+      "TranscriptionResult": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "description": "Array of transcription results.",
+            "items": {
+              "$ref": "#/components/schemas/TranscriptionSegment"
+            }
+          }
+        }
+      },
+      "TranscriptionSegment": {
+        "type": "object",
+        "properties": {
+          "alternatives": {
+            "type": "array",
+            "description": "Alternative transcriptions for this segment.",
+            "items": {
+              "$ref": "#/components/schemas/TranscriptionAlternative"
+            }
+          },
+          "channel_tag": {
+            "type": "integer",
+            "description": "Audio channel number.",
+            "example": 1
+          }
+        }
+      },
+      "TranscriptionAlternative": {
+        "type": "object",
+        "properties": {
+          "transcript": {
+            "type": "string",
+            "description": "The transcribed text.",
+            "example": "hello, how can i help you?"
+          },
+          "confidence": {
+            "type": "number",
+            "format": "float",
+            "description": "Confidence score between 0 and 1.",
+            "example": 0.9227743
+          },
+          "start_time": {
+            "type": "string",
+            "description": "Start time of the segment.",
+            "example": "1.200000048s"
+          },
+          "end_time": {
+            "type": "string",
+            "description": "End time of the segment.",
+            "example": "1.600000024s"
+          },
+          "speaker_tag": {
+            "type": "string",
+            "description": "Speaker identifier for diarization.",
+            "example": "1"
+          },
+          "language_code": {
+            "type": "string",
+            "description": "Detected language code for this segment.",
+            "example": "en"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetails"
+          }
+        }
+      },
+      "ErrorDetails": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Error code.",
+            "example": 401
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message.",
+            "example": "Unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Async STT",
+      "description": "Endpoints for managing asynchronous audio transcription jobs."
+    }
+  ]
+}
