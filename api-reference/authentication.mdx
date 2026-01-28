@@ -56,9 +56,9 @@ const response = await fetch("https://studio.fano.ai/api/v1/transcript", {
 
 To obtain your API key:
 
-1. Log in to the [Fano Dashboard](https://studio.fano.ai)
-2. Navigate to **Settings** → **API Keys**
-3. Copy your license key
+1. Log in to the [Fano Speech API Portal](https://app.fanocloud.com)
+2. Navigate to **API Keys**
+3. Copy your credentials
 
 <Warning>
 **Security Best Practices:**
@@ -84,4 +84,3 @@ If authentication fails, you will receive a `401 Unauthorized` response:
 Common causes:
 - Missing `Fano-License-Key` header
 - Invalid or expired API key
-- Incorrect header name (case-sensitive)
