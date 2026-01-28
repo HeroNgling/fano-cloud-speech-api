@@ -3,7 +3,7 @@
   "name": "Fano Speech API",
   "logo": {
     "dark": "/logo/light.svg",
-    "light": "/logo/light.svg"
+    "light": "/logo/dark.svg"
   },
   "favicon": "/logo/fav.svg",
   "colors": {
