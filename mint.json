@@ -22,34 +22,48 @@
     }
   ],
   "topbarCtaButton": {
-    "name": "Dashboard",
-    "url": "https://studio.fano.ai"
+    "name": "Get Started",
+    "url": "https://app.fanocloud.com"
   },
+  "tabs": [
+    {
+      "name": "Documentation",
+      "url": "docs"
+    },
+    {
+      "name": "API Reference",
+      "url": "api-reference"
+    },
+    {
+      "name": "Release Note",
+      "url": "release-notes"
+    }
+  ],
   "navigation": [
     {
-      "group": "Documentation",
+      "group": "Overview",
       "pages": [
-        "introduction",
-        {
-          "group": "Get Started",
-          "pages": [
-            "get-started/transcribe-pre-recorded-audio",
-            "get-started/transcribe-streaming-audio"
-          ]
-        },
-        {
-          "group": "Features",
-          "pages": [
-            "features/keyword-biasing",
-            "features/punctuation"
-          ]
-        },
-        {
-          "group": "Model and Language",
-          "pages": [
-            "model-and-language/supported-languages"
-          ]
-        }
+        "docs/introduction"
+      ]
+    },
+    {
+      "group": "Get Started",
+      "pages": [
+        "docs/get-started/transcribe-pre-recorded-audio",
+        "docs/get-started/transcribe-streaming-audio"
+      ]
+    },
+    {
+      "group": "Features",
+      "pages": [
+        "docs/features/keyword-biasing",
+        "docs/features/punctuation"
+      ]
+    },
+    {
+      "group": "Model and Language",
+      "pages": [
+        "docs/model-and-language/supported-languages"
       ]
     },
     {
