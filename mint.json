@@ -40,8 +40,7 @@
     }
   ],
   "openapi": [
-    "api-reference/openapi.json",
-    "api-reference/openapi-streaming.yaml"
+    "/api-reference/openapi.json"
   ],
   "api": {
     "baseUrl": "https://studio.fano.ai",
@@ -96,21 +95,7 @@
     },
     {
       "group": "Streaming STT",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "pages": [
-        "api-reference/streaming-stt/overview",
-        "api-reference/streaming-stt/configure-stream",
-        "api-reference/streaming-stt/send-audio-chunk",
-        "api-reference/streaming-stt/receive-results",
-        "api-reference/streaming-stt/send-eof"
-      ]
-=======
       "asyncapi": "/api-reference/asyncapi-streaming-transcription.yaml"
->>>>>>> Stashed changes
-=======
-      "asyncapi": "/api-reference/asyncapi-streaming-transcription.yaml"
->>>>>>> Stashed changes
     },
     {
       "group": "Release Note",
