@@ -4,12 +4,19 @@ info:
   version: 1.0.0
   description: Real-time speech-to-text transcription over WebSocket
 
+# Authentication
+# This API uses an API key sent as a WebSocket handshake header.
+security:
+  - FanoLicenseKey: []
+
 servers:
   production:
     host: app.fano.ai
     pathname: /api/v1/speech-to-text/streaming-transcript
     protocol: wss
     description: Production WebSocket Server
+    security:
+      - FanoLicenseKey: []
 
 channels:
   transcription:
@@ -23,7 +30,10 @@ channels:
           properties:
             Fano-license-key:
               type: string
-              description: Your Fano API license key for authentication
+              description: |
+                Your Fano API license key for authentication.
+
+                Send this value as a WebSocket handshake header. Keep keys secret and do not embed them in client-side apps.
               examples:
                 - "your-api-key-here"
     messages:
@@ -87,6 +97,15 @@ operations:
       - $ref: '#/channels/transcription/messages/error'
 
 components:
+  securitySchemes:
+    FanoLicenseKey:
+      type: apiKey
+      in: header
+      name: Fano-license-key
+      description: |
+        Fano API license key.
+
+        Provide this key as a WebSocket handshake header named `Fano-license-key`.
   messages:
     Configure:
       name: Configure
