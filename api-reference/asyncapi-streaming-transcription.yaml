@@ -6,7 +6,7 @@ info:
 
 servers:
   production:
-    host: app.fano.ai
+    host: app.fanocloud.com
     pathname: /api/v1/speech-to-text/streaming-transcript
     protocol: wss
     description: Production WebSocket Server

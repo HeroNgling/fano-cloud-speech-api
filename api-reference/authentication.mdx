@@ -18,7 +18,7 @@ The Fano Speech API uses API key authentication. You must include your license k
 <CodeGroup>
 
 ```bash cURL
-curl -X POST https://studio.fano.ai/api/v1/transcript \
+curl -X POST https://app.fanocloud.com/api/v1/speech-to-text/transcript \
   -H "Fano-License-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"config": {...}, "audio": {...}}'
@@ -33,14 +33,14 @@ headers = {
 }
 
 response = requests.post(
-    "https://studio.fano.ai/api/v1/transcript",
+    "https://app.fanocloud.com/api/v1/speech-to-text/transcript",
     headers=headers,
     json=payload
 )
 ```
 
 ```javascript JavaScript
-const response = await fetch("https://studio.fano.ai/api/v1/transcript", {
+const response = await fetch("https://app.fanocloud.com/api/v1/speech-to-text/transcript", {
   method: "POST",
   headers: {
     "Fano-License-Key": "YOUR_API_KEY",

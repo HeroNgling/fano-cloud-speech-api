@@ -15,11 +15,11 @@ sequenceDiagram
     participant Client
     participant API as Fano API
     
-    Client->>API: POST /api/v1/transcript
+    Client->>API: POST /api/v1/speech-to-text/transcript
     API-->>Client: Returns operation_id
     
     loop Poll for results
-        Client->>API: GET /api/v1/transcript/{operation_id}
+        Client->>API: GET /api/v1/operations/{operation_id}
         API-->>Client: Returns status (done: false/true)
     end
     
@@ -27,7 +27,7 @@ sequenceDiagram
 ```
 
 The asynchronous transcription process is a simple, two-step workflow:
-1. **Submit the file:** You send a `POST` request to the `/api/v1/transcript` endpoint with your audio file (as a URI or base64-encoded string) and configuration.
+1. **Submit the file:** You send a `POST` request to the `/api/v1/speech-to-text/transcript` endpoint with your audio file (as a URI or base64-encoded string) and configuration.
 2. **Get the transcript:** The API returns an `operation_id`. You can then get the transcription results by polling, in which you could periodically check a `GET` endpoint using the `operation_id` until the transcription is `done`.
 
 ## Full Example Code
@@ -40,7 +40,7 @@ import time
 
 # --- Configuration ---
 API_KEY = "YOUR_LICENSE_KEY_HERE"
-BASE_URL = "https://studio.fano.ai"
+BASE_URL = "https://app.fanocloud.com"
 AUDIO_FILE_URI = "https://your-bucket.s3.aws.com/audio/my-long-call.wav"
 
 HEADERS = {
@@ -53,7 +53,7 @@ def submit_job(audio_uri):
     """
     Submits a new transcription job to the long-running API.
     """
-    submit_url = f"{BASE_URL}/api/v1/transcript"
+    submit_url = f"{BASE_URL}/api/v1/speech-to-text/transcript"
     
     payload = {
         "config": {
@@ -90,7 +90,7 @@ def get_results(operation_id):
     """
     Polls the operations endpoint for the status of a job.
     """
-    poll_url = f"{BASE_URL}/api/v1/transcript/{operation_id}"
+    poll_url = f"{BASE_URL}/api/v1/operations/{operation_id}"
     
     try:
         response = requests.get(poll_url, headers=HEADERS)
@@ -131,7 +131,7 @@ if __name__ == "__main__":
 ```javascript JavaScript
 // --- Configuration ---
 const API_KEY = "YOUR_LICENSE_KEY_HERE";
-const BASE_URL = "https://studio.fano.ai";
+const BASE_URL = "https://app.fanocloud.com";
 const AUDIO_FILE_URI = "https://your-bucket.s3.aws.com/audio/my-long-call.wav";
 const POLLING_INTERVAL_MS = 10000;
 
@@ -144,7 +144,7 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // --- 1. Submit the transcription job ---
 async function submitJob(audioUri) {
-    const submitUrl = `${BASE_URL}/api/v1/transcript`;
+    const submitUrl = `${BASE_URL}/api/v1/speech-to-text/transcript`;
     
     const payload = {
         "config": {
@@ -187,7 +187,7 @@ async function submitJob(audioUri) {
 
 // --- 2. Poll for the results ---
 async function getResults(operationId) {
-    const pollUrl = `${BASE_URL}/api/v1/transcript/${operationId}`;
+    const pollUrl = `${BASE_URL}/api/v1/operations/${operationId}`;
 
     try {
         const response = await fetch(pollUrl, { headers: HEADERS });
@@ -257,7 +257,7 @@ Fano-license-key: YOUR_LICENSE_KEY_HERE
 To start a new transcription job, make a `POST` request to the asynchronous endpoint.
 
 <Note>
-**Endpoint:** `POST /api/v1/transcript`
+**Endpoint:** `POST /api/v1/speech-to-text/transcript`
 </Note>
 
 **Request Body:**

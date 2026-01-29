@@ -12,7 +12,7 @@
   },
   "servers": [
     {
-      "url": "https://studio.fano.ai",
+      "url": "https://app.fanocloud.com",
       "description": "Production Server"
     }
   ],
@@ -22,11 +22,11 @@
     }
   ],
   "paths": {
-    "/api/v1/transcript": {
+    "/api/v1/speech-to-text/transcript": {
       "post": {
         "operationId": "submitTranscription",
         "summary": "Submit audio for transcription",
-        "description": "Submit an audio file for asynchronous transcription. Send your audio file (as base64 `content` or a public `uri`) and configuration. The API will validate the request and return an `Operation` object with a unique `name` (the operation ID). Use this ID with the `GET /api/v1/transcript/{operation_id}` endpoint to check the job's status and retrieve the results.",
+        "description": "Submit an audio file for asynchronous transcription. Send your audio file (as base64 `content` or a public `uri`) and configuration. The API will validate the request and return an `Operation` object with a unique `name` (the operation ID). Use this ID with the `GET /api/v1/operations/{operation_id}` endpoint to check the job's status and retrieve the results.",
         "tags": ["Async STT"],
         "requestBody": {
           "required": true,
@@ -109,7 +109,7 @@
         }
       }
     },
-    "/api/v1/transcript/{operation_id}": {
+    "/api/v1/operations/{operation_id}": {
       "get": {
         "operationId": "getTranscriptionStatus",
         "summary": "Get transcription status or results",
@@ -120,7 +120,7 @@
             "name": "operation_id",
             "in": "path",
             "required": true,
-            "description": "The unique ID of the operation to check. This is the `name` field returned from the `POST /api/v1/transcript` request.",
+            "description": "The unique ID of the operation to check. This is the `name` field returned from the `POST /api/v1/speech-to-text/transcript` request.",
             "schema": {
               "type": "string",
               "format": "uuid"

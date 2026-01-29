@@ -43,7 +43,7 @@
     "/api-reference/openapi.json"
   ],
   "api": {
-    "baseUrl": "https://studio.fano.ai",
+    "baseUrl": "https://app.fanocloud.com",
     "auth": {
       "method": "key",
       "name": "Fano-License-Key"

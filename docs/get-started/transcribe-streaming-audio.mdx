@@ -47,7 +47,7 @@ We use **Secure WebSockets (WSS)** for streaming. This allows for a persistent, 
 **Base URL:**
 
 ```
-wss://app.fano.ai/api/v1/speech-to-text/streaming-transcript
+wss://app.fanocloud.com/api/v1/speech-to-text/streaming-transcript
 ```
 
 ### Example Code
@@ -62,7 +62,7 @@ import pyaudio
 
 # CONFIGURATION
 API_KEY = 'YOUR_FANO_API_KEY'
-URL = "wss://app.fano.ai/api/v1/speech-to-text/streaming-transcript"
+URL = "wss://app.fanocloud.com/api/v1/speech-to-text/streaming-transcript"
 
 async def stream_audio():
     # 1. Configure the connection
@@ -122,7 +122,7 @@ const record = require('node-record-lpcm16');
 
 // CONFIGURATION
 const API_KEY = 'YOUR_FANO_API_KEY';
-const URL = 'wss://app.fano.ai/api/v1/speech-to-text/streaming-transcript';
+const URL = 'wss://app.fanocloud.com/api/v1/speech-to-text/streaming-transcript';
 
 const ws = new WebSocket(URL, {
   headers: { Authorization: `Bearer ${API_KEY}` }
@@ -199,7 +199,7 @@ The streaming session follows a strict lifecycle:
   <Step title="Establish Connection">
     Connect to the WebSocket endpoint:
     ```
-    wss://app.fano.ai/api/v1/speech-to-text/streaming-transcript
+    wss://app.fanocloud.com/api/v1/speech-to-text/streaming-transcript
     ```
   </Step>
   <Step title="Send Configuration (Publish Event)">
