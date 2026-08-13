@@ -116,7 +116,7 @@ async def stream_audio():
 asyncio.run(stream_audio())
 ```
 
-```javascript JavaScript
+```javascript Node.js
 const WebSocket = require('ws');
 const record = require('node-record-lpcm16');
 
@@ -179,6 +179,61 @@ ws.on('error', (error) => {
 });
 ```
 
+```javascript Browser
+// CONFIGURATION
+const API_KEY = 'YOUR_FANO_API_KEY';
+const URL = 'wss://app.fanocloud.com/api/v1/speech-to-text/streaming-transcript';
+
+// Browsers cannot set custom headers, so the license key
+// is passed via the WebSocket subprotocols instead
+const ws = new WebSocket(URL, ['fano-license-key', API_KEY]);
+
+ws.onopen = () => {
+  console.log('Connected to Fano Streaming API...');
+
+  // 1. Send Configuration
+  const configMsg = {
+    config: {
+      languageCode: 'yue-x-auto',
+      sampleRateHertz: 16000,
+      encoding: 'LINEAR16',
+      enableAutomaticPunctuation: true,
+      interimResults: true
+    }
+  };
+  ws.send(JSON.stringify(configMsg));
+};
+
+ws.onmessage = (event) => {
+  const response = JSON.parse(event.data);
+
+  for (const result of response.results ?? []) {
+    const transcript = result.alternatives?.[0]?.transcript;
+
+    if (result.isFinal) {
+      console.log(`Final: ${transcript}`);
+    } else {
+      console.log(`Interim: ${transcript}`);
+    }
+  }
+};
+
+ws.onclose = () => {
+  console.log('Connection closed');
+};
+
+ws.onerror = (error) => {
+  console.error('WebSocket Error:', error);
+};
+
+// 2. Send Audio Chunks (Base64 encoded)
+ws.send(JSON.stringify({ audioContent: btoa(String.fromCharCode(...pcmBytes)) }));
+
+// 3. Send EOF when the stream is finished
+ws.send(JSON.stringify({ eof: true }));
+ws.close(1000);
+```
+
 </CodeGroup>
 
 ## Quick Start
@@ -190,6 +245,10 @@ Authentication is handled via the `Fano-license-key` header during the WebSocket
 | Header | Value | Description |
 |--------|-------|-------------|
 | `Fano-license-key` | `YOUR_API_KEY` | Your unique license key provided by Fano Labs. |
+
+<Note>
+Browser JavaScript cannot set custom headers on WebSocket connections. In the browser, pass the license key via the WebSocket subprotocols instead: `new WebSocket(url, ['fano-license-key', licenseKey])`.
+</Note>
 
 ### Step 2: Connection Workflow
 
