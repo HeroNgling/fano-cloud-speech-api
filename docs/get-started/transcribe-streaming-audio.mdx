@@ -30,8 +30,8 @@ sequenceDiagram
         Server-->>Client: Transcription Result (interim)
     end
     
-    Server-->>Client: Transcription Result (final)
     Client->>Server: 3️⃣ EOF Message
+    Server-->>Client: Transcription Result (final)
     Server-->>Client: Connection Closed
 ```
 
@@ -55,113 +55,144 @@ wss://app.fanocloud.com/api/v1/speech-to-text/streaming-transcript
 <CodeGroup>
 
 ```python Python
+# pip install "websockets>=14" pyaudio
 import asyncio
-import websockets
+import base64
 import json
+
 import pyaudio
+import websockets
 
 # CONFIGURATION
-API_KEY = 'YOUR_FANO_API_KEY'
+API_KEY = "YOUR_FANO_API_KEY"
 URL = "wss://app.fanocloud.com/api/v1/speech-to-text/streaming-transcript"
+SAMPLE_RATE = 16000
+CHUNK_FRAMES = 1600  # 100 ms of 16 kHz mono audio
+DURATION_SECONDS = 30
+
 
 async def stream_audio():
-    # 1. Configure the connection
-    headers = {"Authorization": f"Bearer {API_KEY}"}
-    
-    # Initial Configuration Message
+    # 1. Authenticate with the Fano-License-Key header
+    headers = {"Fano-License-Key": API_KEY}
+
     config_msg = {
-        "type": "Configure",
         "config": {
-            "languageCode": "yue-x-auto", 
-            "sampleRateHertz": 16000,
+            "languageCode": "yue-x-auto",
+            "sampleRateHertz": SAMPLE_RATE,
             "encoding": "LINEAR16",
-            "enablePunctuation": True,
-            "interimResult": True 
+            "enableAutomaticPunctuation": True,
+            "interimResults": True,
         }
     }
 
-    async with websockets.connect(URL, extra_headers=headers) as ws:
+    async with websockets.connect(URL, additional_headers=headers) as ws:
         # 2. Send Configuration
         await ws.send(json.dumps(config_msg))
         print("Connected to Fano Streaming API...")
 
-        # 3. Setup Microphone Stream (PyAudio)
+        # 3. Setup Microphone Stream (PyAudio, 16-bit mono PCM)
         p = pyaudio.PyAudio()
         stream = p.open(
-            format=pyaudio.paInt16, 
-            channels=1, 
-            rate=16000, 
-            input=True, 
-            frames_per_buffer=3200
+            format=pyaudio.paInt16,
+            channels=1,
+            rate=SAMPLE_RATE,
+            input=True,
+            frames_per_buffer=CHUNK_FRAMES,
         )
 
         async def send_audio():
-            while True:
-                data = stream.read(3200, exception_on_overflow=False)
-                await ws.send(data)
-                await asyncio.sleep(0.01)
+            for _ in range(DURATION_SECONDS * SAMPLE_RATE // CHUNK_FRAMES):
+                data = await asyncio.to_thread(
+                    stream.read, CHUNK_FRAMES, exception_on_overflow=False
+                )
+                # Audio is sent as Base64 inside a JSON message, not as binary frames
+                await ws.send(json.dumps({"audioContent": base64.b64encode(data).decode()}))
+
+            # 4. Send EOF; the server closes the connection after the final results
+            await ws.send(json.dumps({"eof": True}))
+            stream.stop_stream()
+            stream.close()
+            p.terminate()
 
         async def receive_transcripts():
             async for message in ws:
                 response = json.loads(message)
-                if response.get("isFinal"):
-                    print(f"Final: {response['alternatives'][0]['transcript']}")
-                else:
-                    print(f"Interim: {response['alternatives'][0]['transcript']}", end="\r")
+                if "error" in response:
+                    print(f"Error {response['error'].get('code')}: {response['error'].get('message')}")
+                    continue
+                for result in response.get("results", []):
+                    transcript = result["alternatives"][0]["transcript"]
+                    if result.get("isFinal"):
+                        print(f"Final: {transcript}")
+                    else:
+                        print(f"Interim: {transcript}", end="\r")
 
         # Run send and receive loops concurrently
         await asyncio.gather(send_audio(), receive_transcripts())
 
-# Run the client
+
 asyncio.run(stream_audio())
 ```
 
 ```javascript Node.js
+// npm install ws node-record-lpcm16  (requires SoX for microphone capture)
 const WebSocket = require('ws');
 const record = require('node-record-lpcm16');
 
 // CONFIGURATION
 const API_KEY = 'YOUR_FANO_API_KEY';
 const URL = 'wss://app.fanocloud.com/api/v1/speech-to-text/streaming-transcript';
+const DURATION_MS = 30000;
 
+// 1. Authenticate with the Fano-License-Key header
 const ws = new WebSocket(URL, {
-  headers: { Authorization: `Bearer ${API_KEY}` }
+  headers: { 'Fano-License-Key': API_KEY }
 });
 
-ws.on('open', function open() {
+let recording;
+
+ws.on('open', () => {
   console.log('Connected to Fano Streaming API...');
 
-  // 1. Send Configuration
+  // 2. Send Configuration
   const configMsg = {
-    type: 'Configure',
     config: {
       languageCode: 'yue-x-auto',
       sampleRateHertz: 16000,
       encoding: 'LINEAR16',
-      enablePunctuation: true,
-      interimResult: true
+      enableAutomaticPunctuation: true,
+      interimResults: true
     }
   };
   ws.send(JSON.stringify(configMsg));
 
-  // 2. Start Microphone Stream
-  record
-    .start({
-      sampleRate: 16000,
-      channels: 1,
-      verbose: false,
-      recordProgram: 'rec'
-    })
-    .pipe(ws);
+  // 3. Stream microphone audio (16-bit mono PCM) as Base64 inside JSON
+  recording = record.record({ sampleRate: 16000, channels: 1, audioType: 'raw' });
+  recording.stream().on('data', (chunk) => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ audioContent: chunk.toString('base64') }));
+    }
+  });
+
+  // 4. Send EOF; the server closes the connection after the final results
+  setTimeout(() => {
+    recording.stop();
+    ws.send(JSON.stringify({ eof: true }));
+  }, DURATION_MS);
 });
 
-ws.on('message', function incoming(data) {
+ws.on('message', (data) => {
   const response = JSON.parse(data);
-  
-  if (response.alternatives && response.alternatives[0]) {
-    const transcript = response.alternatives[0].transcript;
-    
-    if (response.isFinal) {
+
+  if (response.error) {
+    console.error(`Error ${response.error.code}: ${response.error.message}`);
+    return;
+  }
+
+  for (const result of response.results ?? []) {
+    const transcript = result.alternatives?.[0]?.transcript;
+
+    if (result.isFinal) {
       console.log(`Final: ${transcript}`);
     } else {
       process.stdout.write(`Interim: ${transcript}\r`);
@@ -171,7 +202,7 @@ ws.on('message', function incoming(data) {
 
 ws.on('close', () => {
   console.log('Connection closed');
-  record.stop();
+  recording?.stop();
 });
 
 ws.on('error', (error) => {
@@ -207,6 +238,11 @@ ws.onopen = () => {
 ws.onmessage = (event) => {
   const response = JSON.parse(event.data);
 
+  if (response.error) {
+    console.error(`Error ${response.error.code}: ${response.error.message}`);
+    return;
+  }
+
   for (const result of response.results ?? []) {
     const transcript = result.alternatives?.[0]?.transcript;
 
@@ -226,12 +262,16 @@ ws.onerror = (error) => {
   console.error('WebSocket Error:', error);
 };
 
-// 2. Send Audio Chunks (Base64 encoded)
-ws.send(JSON.stringify({ audioContent: btoa(String.fromCharCode(...pcmBytes)) }));
+// 2. Send Audio Chunks: call with each 100-500 ms Uint8Array of 16-bit mono PCM
+function sendAudioChunk(pcmBytes) {
+  ws.send(JSON.stringify({ audioContent: btoa(String.fromCharCode(...pcmBytes)) }));
+}
 
-// 3. Send EOF when the stream is finished
-ws.send(JSON.stringify({ eof: true }));
-ws.close(1000);
+// 3. Send EOF when the stream is finished; the server sends the
+// final results and then closes the connection
+function stopStreaming() {
+  ws.send(JSON.stringify({ eof: true }));
+}
 ```
 
 </CodeGroup>
@@ -327,10 +367,24 @@ The streaming session follows a strict lifecycle:
 
 ## Error Handling
 
-| Error Code | Description | Troubleshooting |
-|------------|-------------|-----------------|
-| `401` | Unauthorized | Check your `Fano-license-key`. |
-| `400` | Bad Request | Check your JSON format or Base64 encoding. |
+Errors are sent over the open WebSocket as a JSON message, after which the server closes the connection:
+
+```json
+{
+  "error": {
+    "code": 16,
+    "message": "license key is empty"
+  }
+}
+```
+
+The `code` field is a [gRPC status code](https://grpc.io/docs/guides/status-codes/):
+
+| Code | Name | Troubleshooting |
+|------|------|-----------------|
+| `16` | Unauthenticated | Check your `Fano-license-key`. |
+| `3` | InvalidArgument | Check your JSON format, config fields or Base64 encoding. |
+| `8` | ResourceExhausted | Too many concurrent streams for your account. Close unused connections. |
 
 ## Audio Requirements
 
