@@ -133,13 +133,16 @@ components:
                 description: "Return interim results before final"
                 default: false
               speechContexts:
-                type: object
-                properties:
-                  keywords:
-                    type: array
-                    items:
-                      type: string
-                    description: "Keywords to boost recognition (max 1000)"
+                type: array
+                description: "Keyword groups to boost recognition (max 1000 keywords in total)"
+                items:
+                  type: object
+                  properties:
+                    keywords:
+                      type: array
+                      items:
+                        type: string
+                      description: "Keywords to boost recognition"
         examples:
           - config:
               languageCode: "yue-x-auto"
@@ -163,7 +166,7 @@ components:
             format: byte
             description: "Base64-encoded audio data (100-500ms chunks recommended)"
         examples:
-          - audioContent: "UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQAAAAA="
+          - audioContent: "AAAAAAEAAgADAAIAAQAAAP//AAAAAAEA"
 
     EOF:
       name: EOF
@@ -255,11 +258,11 @@ components:
             properties:
               code:
                 type: integer
-                description: "Error code (3=InvalidArgument, 401=Unauthorized)"
+                description: "gRPC status code (3=InvalidArgument, 8=ResourceExhausted, 16=Unauthenticated)"
               message:
                 type: string
                 description: "Error description"
         examples:
           - error:
-              code: 3
-              message: "invalid message format"
+              code: 16
+              message: "license key is empty"
