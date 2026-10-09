@@ -4,5 +4,5 @@ openapi: 'POST /api/v1/speech-to-text/transcript'
 ---
 
 <Note>
-This is the first step of the transcription workflow. After submitting, use the returned `operation_id` to poll for results.
+This is the first step of the transcription workflow. After submitting, the response's `name` is `operations/{operation_id}`. Use the `operation_id` part to poll for results.
 </Note>
