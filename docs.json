@@ -1,0 +1,120 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Fano Speech API",
+  "colors": {
+    "primary": "#012AFF",
+    "light": "#012AFF",
+    "dark": "#012AFF"
+  },
+  "favicon": "/logo/fav.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "docs/introduction"
+            ]
+          },
+          {
+            "group": "Get Started",
+            "pages": [
+              "docs/get-started/transcribe-pre-recorded-audio",
+              "docs/get-started/transcribe-streaming-audio"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "docs/features/keyword-biasing",
+              "docs/features/punctuation"
+            ]
+          },
+          {
+            "group": "Model and Language",
+            "pages": [
+              "docs/model-and-language/supported-languages"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "General",
+            "pages": [
+              "api-reference/introduction",
+              "api-reference/authentication"
+            ]
+          },
+          {
+            "group": "Async STT",
+            "pages": [
+              "api-reference/async-stt/submit-transcription",
+              "api-reference/async-stt/get-transcription-status"
+            ]
+          },
+          {
+            "group": "Streaming STT",
+            "pages": [
+              "api-reference/streaming-stt/streaming-transcription"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Release Note",
+        "groups": [
+          {
+            "group": "Release Note",
+            "pages": [
+              "release-notes/changelog"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "api": {
+    "openapi": [
+      "api-reference/openapi.json"
+    ],
+    "playground": {
+      "display": "interactive"
+    },
+    "mdx": {
+      "server": "https://app.fanocloud.com",
+      "auth": {
+        "method": "key",
+        "name": "Fano-License-Key"
+      }
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:support@fano.ai"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get Started",
+      "href": "https://app.fanocloud.com/app"
+    }
+  },
+  "footer": {
+    "socials": {
+      "website": "https://fano.ai",
+      "linkedin": "https://www.linkedin.com/company/fanolabs"
+    }
+  }
+}
