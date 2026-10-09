@@ -71,7 +71,8 @@ def submit_job(audio_uri):
         response.raise_for_status()
         
         data = response.json()
-        operation_id = data.get("name")
+        # "name" is "operations/<operation_id>"; the poll URL takes only the ID
+        operation_id = data.get("name", "").split("/")[-1]
         
         if not operation_id:
             print("Error: Could not get operation ID from response.")
@@ -169,7 +170,8 @@ async function submitJob(audioUri) {
         }
 
         const data = await response.json();
-        const operationId = data.name;
+        // "name" is "operations/<operation_id>"; the poll URL takes only the ID
+        const operationId = data.name?.split('/').pop();
 
         if (!operationId) {
             console.error("Error: Could not get operation ID from response.", data);
@@ -277,7 +279,7 @@ To start a new transcription job, make a `POST` request to the asynchronous endp
 
 ### Step 2: Get the Results
 
-Use the `name` from the response to poll the operations endpoint.
+The response's `name` has the form `operations/{operation_id}`. Poll the operations endpoint with the part after `operations/`.
 
 <Note>
 **Endpoint:** `GET /api/v1/operations/{operation_id}`
@@ -289,7 +291,7 @@ While the job is processing, `done` will remain `false` and there will be no `re
 
 ```json
 {
-  "name": "{job_id}",
+  "name": "operations/{operation_id}",
   "done": false,
   "metadata": {
     "requestTime": "2025-08-19T07:50:23.692Z",
@@ -305,7 +307,7 @@ When the job is finished, `done` will be `true` and the object will contain the 
 
 ```json
 {
-  "name": "2a0ffe84-f98b-47dc-a55b-963a2e01ba29",
+  "name": "operations/9c3sq6vkd0hm2tq8",
   "metadata": {
     "requestTime": "2025-08-19T07:50:23.692Z",
     "startTime": "2025-08-19T07:50:23.692Z",

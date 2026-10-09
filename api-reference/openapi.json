@@ -75,7 +75,7 @@
                   "$ref": "#/components/schemas/OperationResponse"
                 },
                 "example": {
-                  "name": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29",
+                  "name": "operations/9c3sq6vkd0hm2tq8",
                   "done": false,
                   "metadata": {
                     "requestTime": "2025-08-19T07:50:23.692Z",
@@ -120,12 +120,11 @@
             "name": "operation_id",
             "in": "path",
             "required": true,
-            "description": "The unique ID of the operation to check. This is the `name` field returned from the `POST /api/v1/speech-to-text/transcript` request.",
+            "description": "The unique ID of the operation to check. The `POST /api/v1/speech-to-text/transcript` response returns `name` as `operations/{operation_id}`; pass only the part after `operations/`.",
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             },
-            "example": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29"
+            "example": "9c3sq6vkd0hm2tq8"
           }
         ],
         "responses": {
@@ -140,7 +139,7 @@
                   "in_progress": {
                     "summary": "Job in progress",
                     "value": {
-                      "name": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29",
+                      "name": "operations/9c3sq6vkd0hm2tq8",
                       "done": false,
                       "metadata": {
                         "requestTime": "2025-08-19T07:50:23.692Z",
@@ -152,7 +151,7 @@
                   "completed": {
                     "summary": "Job completed",
                     "value": {
-                      "name": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29",
+                      "name": "operations/9c3sq6vkd0hm2tq8",
                       "done": true,
                       "metadata": {
                         "requestTime": "2025-08-19T07:50:23.692Z",
@@ -307,9 +306,8 @@
         "properties": {
           "name": {
             "type": "string",
-            "format": "uuid",
-            "description": "The unique operation ID for this transcription job.",
-            "example": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29"
+            "description": "The operation resource name, in the form `operations/{operation_id}`.",
+            "example": "operations/9c3sq6vkd0hm2tq8"
           },
           "done": {
             "type": "boolean",
@@ -326,9 +324,8 @@
         "properties": {
           "name": {
             "type": "string",
-            "format": "uuid",
-            "description": "The unique operation ID for this transcription job.",
-            "example": "2a0ffea4-f98b-47dc-a55b-963a2e01ba29"
+            "description": "The operation resource name, in the form `operations/{operation_id}`.",
+            "example": "operations/9c3sq6vkd0hm2tq8"
           },
           "done": {
             "type": "boolean",
